@@ -7,7 +7,7 @@ export interface RestClientOptions {
 
   /**
    * The API group this client should connect to:
-   * - market: 'prod' (default: connects to OKX global) https://www.okx.com/docs-v5/en/#overview-production-trading-services
+   * - market: 'prod' (default: OKX Global REST at https://openapi.okx.com)
    * - market: 'EEA' // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
    * - market: 'US' // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
    */
@@ -21,7 +21,7 @@ export interface RestClientOptions {
   // Default: false. If true, we'll throw errors if any params are undefined
   strict_param_validation?: boolean;
 
-  // Optionally override API protocol + domain.
+  // Optionally override REST API base URL (e.g. 'https://www.okx.com' or 'https://openapi.okx.com').
   // Note: to use my.okx or app.okx or eea.okx or us.okx, use the "market" parameter
   // e.g 'https://eea.okx.com'
   baseUrl?: string;

@@ -400,7 +400,7 @@ export interface AccountInstrument {
   seriesId?: string;
   uly?: string;
   /**
-   * FUTURES label (deprecated — prefer `expTime`; may include this_five_years, next_five_years, …).
+   * FUTURES label (deprecated � prefer `expTime`; may include this_five_years, next_five_years, �).
    */
   alias?: string;
   /** Deprecated; see `instCategory` on public `Instrument` where used. */
@@ -424,7 +424,7 @@ export interface AccountInstrument {
   quoteCcy: string;
   tradeQuoteCcyList: string[]; // List of quote currencies available for trading, e.g. ["USD", "USDC"]
   settleCcy: string;
-  /** Instrument status: live, suspend, rebase (SWAP only), preopen, test */
+  /** Instrument status: live, suspend, rebase (SWAP only), post_only (SWAP only), preopen, test */
   state: string;
   stk: string;
   tickSz: string;
@@ -579,7 +579,7 @@ export interface SetTradingConfigResult {
 }
 
 export interface UnmatchedInfo {
-  type: string; // Unmatched information type: spot_mode, futures_mode, isolated_margin, isolated_contract, positions_options, isolated_pending_orders, pending_orders_options, trading_bot, repay_borrowings, loan, delta_risk, collateral_all
+  type: string; // Unmatched information type: spot_mode, futures_mode, isolated_margin, isolated_contract, positions_options, isolated_pending_orders, pending_orders_options, trading_bot, repay_borrowings, loan, delta_risk, collateral_all, risk_unit_type
   deltaLever?: string; // Delta leverage. Applicable when type is delta_risk
   ordList?: string[]; // Unmatched order list, order ID. Applicable when type is isolated_pending_orders/pending_orders_options
   posList?: string[]; // Unmatched position list, position ID. Applicable when type is isolated_margin/isolated_contract/positions_options

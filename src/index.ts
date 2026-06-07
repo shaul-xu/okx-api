@@ -5,6 +5,7 @@ export * from './types/rest/client.js';
 export * from './types/rest/shared.js';
 // REST/request
 export * from './types/rest/request/account.js';
+export * from './types/rest/request/affiliate.js';
 export * from './types/rest/request/block-trading.js';
 export * from './types/rest/request/convert.js';
 export * from './types/rest/request/copy-trading.js';
@@ -17,10 +18,12 @@ export * from './types/rest/request/shared.js';
 export * from './types/rest/request/signal-bot.js';
 export * from './types/rest/request/simple-earn.js';
 export * from './types/rest/request/spread-trading.js';
+export * from './types/rest/request/stable-rewards.js';
 export * from './types/rest/request/subaccount.js';
 export * from './types/rest/request/trade.js';
 // REST/response
 export * from './types/rest/response/private-account.js';
+export * from './types/rest/response/private-affiliate.js';
 export * from './types/rest/response/private-block-trading.js';
 export * from './types/rest/response/private-copy-trading.js';
 export * from './types/rest/response/private-dual-investment.js';
@@ -29,6 +32,7 @@ export * from './types/rest/response/private-funding.js';
 export * from './types/rest/response/private-recurring-buy.js';
 export * from './types/rest/response/private-signal-bot.js';
 export * from './types/rest/response/private-spread-trading.js';
+export * from './types/rest/response/private-stable-rewards.js';
 export * from './types/rest/response/private-subaccount.js';
 export * from './types/rest/response/private-trade.js';
 export * from './types/rest/response/public-data.js';

@@ -30,6 +30,12 @@ export interface WSAPIPlaceOrderRequestV5 {
   reduceOnly?: boolean;
   /** A spot buy on BTC-USDT with "base_ccy" would mean the QTY (sz) is in USDT */
   tgtCcy?: 'base_ccy' | 'quote_ccy';
+  /**
+   * Maximum acceptable slippage for spot and spot margin market-side orders, where tgtCcy is the received currency (base_ccy for buy, quote_ccy for sell).
+   * Range: 0 to 0.05 (0% to 5%, inclusive). Up to 2 decimal places, e.g. 0.01 (1%) and 0.0123 (1.23%). Defaults to 0.00% if not specified.
+   * Only applicable to SPOT and SPOT margin market orders. Cannot be amended on an existing order.
+   */
+  slippagePct?: string;
   banAmend?: boolean;
   tradeQuoteCcy?: string;
   stpMode?: 'cancel_maker' | 'cancel_taker' | 'cancel_both';
