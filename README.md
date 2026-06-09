@@ -1,6 +1,7 @@
 # Node.js & Typescript OKX (OKEX) API & WebSocket SDK
 
 [![E2E Tests](https://github.com/tiagosiebler/okx-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/okx-api/actions/workflows/e2etest.yml)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tiagosiebler/okx-api)
 [![npm downloads](https://img.shields.io/npm/dt/okx-api)][1]
 [![npm version](https://img.shields.io/npm/v/okx-api)][1]
 [![npm size](https://img.shields.io/bundlephobia/min/okx-api/latest)][1]
