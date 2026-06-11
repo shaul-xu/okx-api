@@ -44,6 +44,20 @@ export const WS_BASE_URL_MAP: Record<
       business: 'wss://wspap.okx.com:8443/ws/v5/business?brokerId=9999',
     },
   },
+  // OKX Global REST at openapi.okx.com. WebSocket URLs unchanged (same as GLOBAL).
+  OPENAPI_GLOBAL: {
+    live: {
+      public: 'wss://ws.okx.com:8443/ws/v5/public',
+      private: 'wss://ws.okx.com:8443/ws/v5/private',
+      // Some channels require business suffix: https://www.okx.com/help/changes-to-v5-api-websocket-subscription-parameter-and-url
+      business: 'wss://ws.okx.com:8443/ws/v5/business',
+    },
+    demo: {
+      public: 'wss://wspap.okx.com:8443/ws/v5/public',
+      private: 'wss://wspap.okx.com:8443/ws/v5/private',
+      business: 'wss://wspap.okx.com:8443/ws/v5/business?brokerId=9999',
+    },
+  },
   // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
   EEA: {
     live: {
@@ -367,7 +381,8 @@ export function getWsKeyForMarket(
 ): WsKey {
   switch (market) {
     case 'prod':
-    case 'GLOBAL': {
+    case 'GLOBAL':
+    case 'OPENAPI_GLOBAL': {
       if (isBusinessChannel) {
         return WS_KEY_MAP.prodBusiness;
       }
@@ -503,6 +518,7 @@ export function getMaxTopicsPerSubscribeEventForMarket(
     case 'prod':
     case 'EEA':
     case 'GLOBAL':
+    case 'OPENAPI_GLOBAL':
     case 'US': {
       return null;
     }

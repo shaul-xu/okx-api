@@ -26,6 +26,14 @@ import {
   WithdrawalHistoryRequest,
 } from './types/rest/request/account.js';
 import {
+  GetAffiliateCoInviterLinkListRequest,
+  GetAffiliateInviteeListRequest,
+  GetAffiliateLinkListRequest,
+  GetAffiliatePerformanceSummaryRequest,
+  GetAffiliateSubAffiliateListRequest,
+  GetInviteeDetailRequest,
+} from './types/rest/request/affiliate.js';
+import {
   CancelBlockQuoteRequest,
   CancelBlockRFQRequest,
   CancelMultipleBlockQuoteRequest,
@@ -134,6 +142,14 @@ import {
   UpdateSpreadOrderRequest,
 } from './types/rest/request/spread-trading.js';
 import {
+  GetStableRewardsApyHistoryRequest,
+  GetStableRewardsBalanceRequest,
+  GetStableRewardsProductInfoRequest,
+  GetStableRewardsSubscribeRedeemHistoryRequest,
+  RequestStableRewardsQuoteRequest,
+  SubmitStableRewardsTradeRequest,
+} from './types/rest/request/stable-rewards.js';
+import {
   GetManagedSubAccountTransferHistoryRequest,
   GetSubAccountMaxWithdrawalsRequest,
   SetSubAccountLoanAllocationRequest,
@@ -196,6 +212,14 @@ import {
   VIPLoanOrder,
   VIPLoanOrderDetail,
 } from './types/rest/response/private-account.js';
+import {
+  AffiliateCoInviterLinkListItem,
+  AffiliateInviteeListItem,
+  AffiliateLinkListItem,
+  AffiliatePerformanceSummary,
+  AffiliateSubAffiliateListItem,
+  InviteeDetail,
+} from './types/rest/response/private-affiliate.js';
 import {
   BlockCounterParty,
   BlockMakerInstrumentSettings,
@@ -291,6 +315,14 @@ import {
   SpreadTrade,
   UpdateSpreadOrderResponse,
 } from './types/rest/response/private-spread-trading.js';
+import {
+  StableRewardsApyHistoryItem,
+  StableRewardsBalance,
+  StableRewardsProductInfo,
+  StableRewardsQuote,
+  StableRewardsSubscribeRedeemHistoryItem,
+  StableRewardsTradeResult,
+} from './types/rest/response/private-stable-rewards.js';
 import {
   ManagedSubAccountTransfer,
   SubAccount,
@@ -2490,6 +2522,8 @@ export class RestClient extends BaseRestClient {
     ccy?: string;
     type?: `${ASSET_BILL_TYPE}`;
     clientId?: string;
+    /** Third-party custody type. Defaults to 1 (Copper) if not specified. */
+    thirdPartyType?: '1' | '2' | '5' | '6';
     after?: numberInString;
     before?: numberInString;
     limit?: numberInString;
@@ -3016,12 +3050,92 @@ export class RestClient extends BaseRestClient {
 
   /**
    *
-   * Affiliate endpoints
+   * Financial product — stable rewards endpoints
+   * @see https://www.okx.com/docs-v5/en/ (2026-04-24 release)
    *
    */
 
-  getInviteeDetail(params: { uid: string }): Promise<any[]> {
+  getStableRewardsProductInfo(
+    params: GetStableRewardsProductInfoRequest,
+  ): Promise<StableRewardsProductInfo[]> {
+    return this.getPrivate(
+      '/api/v5/finance/stable-rewards/product-info',
+      params,
+    );
+  }
+
+  requestStableRewardsQuote(
+    params: RequestStableRewardsQuoteRequest,
+  ): Promise<StableRewardsQuote[]> {
+    return this.postPrivate('/api/v5/finance/stable-rewards/quote', params);
+  }
+
+  submitStableRewardsTrade(
+    params: SubmitStableRewardsTradeRequest,
+  ): Promise<StableRewardsTradeResult[]> {
+    return this.postPrivate('/api/v5/finance/stable-rewards/trade', params);
+  }
+
+  getStableRewardsBalance(
+    params?: GetStableRewardsBalanceRequest,
+  ): Promise<StableRewardsBalance[]> {
+    return this.getPrivate('/api/v5/finance/stable-rewards/balance', params);
+  }
+
+  getStableRewardsApyHistory(
+    params: GetStableRewardsApyHistoryRequest,
+  ): Promise<StableRewardsApyHistoryItem[]> {
+    return this.get('/api/v5/finance/stable-rewards/apy-history', params);
+  }
+
+  getStableRewardsSubscribeRedeemHistory(
+    params: GetStableRewardsSubscribeRedeemHistoryRequest,
+  ): Promise<StableRewardsSubscribeRedeemHistoryItem[]> {
+    return this.getPrivate(
+      '/api/v5/finance/stable-rewards/subscribe-redeem-history',
+      params,
+    );
+  }
+
+  /**
+   *
+   * Affiliate endpoints
+   * @see https://www.okx.com/docs-v5/en/ (2026-05-08 release)
+   *
+   */
+
+  getAffiliatePerformanceSummary(
+    params?: GetAffiliatePerformanceSummaryRequest,
+  ): Promise<AffiliatePerformanceSummary[]> {
+    return this.getPrivate('/api/v5/affiliate/performance/summary', params);
+  }
+
+  getInviteeDetail(params: GetInviteeDetailRequest): Promise<InviteeDetail[]> {
     return this.getPrivate('/api/v5/affiliate/invitee/detail', params);
+  }
+
+  getAffiliateInviteeList(
+    params?: GetAffiliateInviteeListRequest,
+  ): Promise<AffiliateInviteeListItem[]> {
+    return this.getPrivate('/api/v5/affiliate/invitee/list', params);
+  }
+
+  getAffiliateLinkList(
+    params?: GetAffiliateLinkListRequest,
+  ): Promise<AffiliateLinkListItem[]> {
+    return this.getPrivate('/api/v5/affiliate/link/list', params);
+  }
+
+  getAffiliateCoInviterLinkList(
+    params?: GetAffiliateCoInviterLinkListRequest,
+  ): Promise<AffiliateCoInviterLinkListItem[]> {
+    return this.getPrivate('/api/v5/affiliate/co-inviter/list', params);
+  }
+
+  getAffiliateSubAffiliateList(
+    params?: GetAffiliateSubAffiliateListRequest,
+  ): Promise<AffiliateSubAffiliateListItem[]> {
+    return this.getPrivate('/api/v5/affiliate/sub-affiliate/list', params);
   }
 
   getAffiliateRebateInfo(params: { apiKey: string }): Promise<any[]> {

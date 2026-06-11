@@ -118,7 +118,7 @@ export interface Instrument {
    */
   alias: string;
   /**
-   * Instrument status: live, suspend, rebase (SWAP only), preopen, test, expired, settling (EVENTS), …
+   * Instrument status: live, suspend, rebase (SWAP only), post_only (SWAP only), preopen, test, expired, settling (EVENTS), …
    */
   state: string;
   openType?: string; // Open type: fix_price (fix price opening), pre_quote (pre-quote), call_auction (call auction). Only applicable to SPOT/MARGIN.

@@ -1,4 +1,6 @@
-const { WebsocketAPIClient } = require('okx-api');
+import { WebsocketAPIClient } from 'okx-api';
+// or, if require is preferred:
+// const { WebsocketAPIClient } = require('okx-api');
 
 // This example shows how to call this OKX WebSocket API endpoint with either node.js, javascript (js) or typescript (ts) with the npm module "okx-api" for OKX exchange
 // This OKX API SDK is available on npm via "npm install okx-api"

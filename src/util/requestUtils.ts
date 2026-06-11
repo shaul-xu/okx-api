@@ -49,6 +49,9 @@ export function getRestBaseUrl(
     case 'prod': {
       return 'https://www.okx.com';
     }
+    case 'OPENAPI_GLOBAL': {
+      return 'https://openapi.okx.com';
+    }
     // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
     case 'EEA': {
       return 'https://eea.okx.com';

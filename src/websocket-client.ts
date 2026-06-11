@@ -253,7 +253,8 @@ export class WebsocketClient extends BaseWebsocketClient<
     switch (this.options.market) {
       case undefined:
       case 'prod':
-      case 'GLOBAL': {
+      case 'GLOBAL':
+      case 'OPENAPI_GLOBAL': {
         return isPrivateType
           ? WS_KEY_MAP.prodPrivate
           : isBusinessType
