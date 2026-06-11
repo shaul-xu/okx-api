@@ -400,7 +400,7 @@ export interface AccountInstrument {
   seriesId?: string;
   uly?: string;
   /**
-   * FUTURES label (deprecated � prefer `expTime`; may include this_five_years, next_five_years, �).
+   * FUTURES label (deprecated: prefer `expTime`; may include this_five_years, next_five_years, ...).
    */
   alias?: string;
   /** Deprecated; see `instCategory` on public `Instrument` where used. */
