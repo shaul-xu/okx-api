@@ -7,7 +7,8 @@ export interface RestClientOptions {
 
   /**
    * The API group this client should connect to:
-   * - market: 'prod' (default: OKX Global REST at https://openapi.okx.com)
+   * - market: 'prod' (default: connects to OKX global) https://www.okx.com/docs-v5/en/#overview-production-trading-services
+   * - market: 'OPENAPI_GLOBAL' // OKX Global REST at https://openapi.okx.com
    * - market: 'EEA' // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
    * - market: 'US' // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
    */

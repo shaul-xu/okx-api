@@ -44,9 +44,12 @@ export function getRestBaseUrl(
 
   switch (market) {
     default:
-    // "prod" defaults to OKX Global REST API: https://openapi.okx.com (www.okx.com remains supported)
+    // "prod" defaults to OKX Global: https://www.okx.com/docs-v5/en/#overview-production-trading-services
     case 'GLOBAL':
     case 'prod': {
+      return 'https://www.okx.com';
+    }
+    case 'OPENAPI_GLOBAL': {
       return 'https://openapi.okx.com';
     }
     // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
