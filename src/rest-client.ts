@@ -8,11 +8,13 @@ import {
   GetFixedLoanBorrowQuoteRequest,
   GetHistoricPositionParams,
   GetInstrumentsRequest,
+  GetMovePositionsHistoryRequest,
   GetPositionsParams,
   GetQuickMarginBorrowRepayHistoryRequest,
   GetVIPInterestRequest,
   GetVIPLoanOrderDetailRequest,
   GetVIPLoanOrderListRequest,
+  MovePositionsRequest,
   PositionBuilderRequest,
   PrecheckSetDeltaNeutralRequest,
   QuickMarginBorrowRepayRequest,
@@ -101,6 +103,7 @@ import {
   GetEventContractMarketsRequest,
   GetEventContractSeriesRequest,
   GetHistoricalMarketDataRequest,
+  GetInsuranceFundRequest,
   GetOptionTradesRequest,
   GetPremiumHistoryRequest,
   GetTopTradersContractLongShortRatioRequest,
@@ -201,6 +204,7 @@ import {
   InterestRate,
   MaxWithdrawal,
   MMPConfig,
+  MovePositionsResult,
   PrecheckSetDeltaNeutralResult,
   QuickMarginBorrowRepayRecord,
   QuickMarginBorrowRepayResult,
@@ -360,6 +364,7 @@ import {
   FundingRateHistory,
   IndexTicker,
   Instrument,
+  InsuranceFund,
   InterestRateAndLoanQuota,
   MarketDataHistoryResult,
   OptionTrade,
@@ -599,6 +604,25 @@ export class RestClient extends BaseRestClient {
     params: ChangePositionMarginRequest,
   ): Promise<AccountChangeMarginResult[]> {
     return this.postPrivate('/api/v5/account/position/margin-balance', params);
+  }
+
+  /**
+   * Move positions between accounts under the same master account (VIP6+).
+   * TradeFi positions are not supported (error 70004).
+   * @see POST /api/v5/account/move-positions — 2026-05-15 changelog
+   */
+  movePositions(params: MovePositionsRequest): Promise<MovePositionsResult[]> {
+    return this.postPrivate('/api/v5/account/move-positions', params);
+  }
+
+  /**
+   * Move position history for the last 3 days (VIP6+).
+   * @see GET /api/v5/account/move-positions-history
+   */
+  getMovePositionsHistory(
+    params?: GetMovePositionsHistoryRequest,
+  ): Promise<MovePositionsResult[]> {
+    return this.getPrivate('/api/v5/account/move-positions-history', params);
   }
 
   getLeverage(params: {
@@ -2176,33 +2200,33 @@ export class RestClient extends BaseRestClient {
   }
 
   /**
-   * Prediction / event contract series. Auth required (read).
+   * Prediction / event contract series. Public (no auth required since 2026-05-19).
    * @see GET /api/v5/public/event-contract/series
    */
   getEventContractSeries(
     params?: GetEventContractSeriesRequest,
   ): Promise<EventContractSeries[]> {
-    return this.getPrivate('/api/v5/public/event-contract/series', params);
+    return this.get('/api/v5/public/event-contract/series', params);
   }
 
   /**
-   * Events for a series. Auth required (read).
+   * Events for a series. Public (no auth required since 2026-05-19).
    * @see GET /api/v5/public/event-contract/events
    */
   getEventContractEvents(
     params: GetEventContractEventsRequest,
   ): Promise<EventContractEvent[]> {
-    return this.getPrivate('/api/v5/public/event-contract/events', params);
+    return this.get('/api/v5/public/event-contract/events', params);
   }
 
   /**
-   * Markets for events. Auth required (read).
+   * Markets for events. Public (no auth required since 2026-05-19).
    * @see GET /api/v5/public/event-contract/markets
    */
   getEventContractMarkets(
     params: GetEventContractMarketsRequest,
   ): Promise<EventContractMarket[]> {
-    return this.getPrivate('/api/v5/public/event-contract/markets', params);
+    return this.get('/api/v5/public/event-contract/markets', params);
   }
 
   getDeliveryExerciseHistory(params: any): Promise<any[]> {
@@ -2275,7 +2299,7 @@ export class RestClient extends BaseRestClient {
     return this.get('/api/v5/public/underlying', params);
   }
 
-  getInsuranceFund(params: any): Promise<any[]> {
+  getInsuranceFund(params?: GetInsuranceFundRequest): Promise<InsuranceFund[]> {
     return this.get('/api/v5/public/insurance-fund', params);
   }
 
@@ -2544,6 +2568,8 @@ export class RestClient extends BaseRestClient {
     ccy?: string;
     type?: `${ASSET_BILL_TYPE}`;
     clientId?: string;
+    /** Third-party custody type. Defaults to 1 (Copper) if not specified. @see 2026-06-05 changelog */
+    thirdPartyType?: '1' | '2' | '5' | '6';
     after?: numberInString;
     before?: numberInString;
     limit?: numberInString;

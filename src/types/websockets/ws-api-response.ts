@@ -5,6 +5,7 @@ export interface WSAPICancelOrderResultV5 {
   ordId: string;
   ts: numberInString;
   sCode: string;
+  subCode?: string;
   sMsg: string;
 }
 
@@ -13,6 +14,7 @@ export interface WSAPISpreadPlaceOrderResultV5 {
   ordId: string;
   tag: string;
   sCode: numberInString;
+  subCode?: string;
   sMsg: string;
 }
 
@@ -21,6 +23,7 @@ export interface WSAPISpreadAmendOrderResultV5 {
   ordId: string;
   reqId: string;
   sCode: string;
+  subCode?: string;
   sMsg: string;
 }
 
@@ -28,6 +31,7 @@ export interface WSAPISpreadCancelOrderResultV5 {
   clOrdId: string;
   ordId: string;
   sCode: string;
+  subCode?: string;
   sMsg: string;
 }
 

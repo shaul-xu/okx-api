@@ -295,6 +295,7 @@ export interface FeeGroup {
   taker: string;
   maker: string;
   groupId: string;
+  elpMaker?: string;
 }
 
 export interface AccountFeeRate {
@@ -441,6 +442,8 @@ export interface AccountInstrument {
   posLmtAmt: string; // Maximum position value (USD) for this instrument at the user level. Applicable to SWAP/FUTURES.
   posLmtPct: string; // Maximum position ratio (e.g., 30 for 30%) a user may hold relative to platform's current total position value. Applicable to SWAP/FUTURES.
   maxPlatOILmt: string; // Platform-wide maximum position value (USD) for this instrument. Applicable to SWAP/FUTURES.
+  /** Platform-wide maximum position value (coins) for this instrument. Applicable to SWAP/FUTURES. @see 2026-05-19 changelog */
+  maxPlatOICoinLmt?: string;
   /** Remaining long position value (USD) the user is permitted to open. Applicable to SWAP/FUTURES. */
   longPosRemainingQuota?: string;
   /** Remaining short position value (USD) the user is permitted to open. Applicable to SWAP/FUTURES. */
@@ -587,4 +590,41 @@ export interface UnmatchedInfo {
 
 export interface PrecheckSetDeltaNeutralResult {
   unmatchedInfoCheck: UnmatchedInfo[];
+}
+
+export interface MovePositionLegResultFrom {
+  posId: string;
+  instId: string;
+  px: string;
+  side: string;
+  sz: string;
+  sCode: string;
+  sMsg: string;
+}
+
+export interface MovePositionLegResultTo {
+  instId: string;
+  px: string;
+  side: string;
+  sz: string;
+  tdMode: string;
+  posSide: string;
+  ccy: string;
+  sCode: string;
+  sMsg: string;
+}
+
+export interface MovePositionLegResult {
+  from: MovePositionLegResultFrom;
+  to: MovePositionLegResultTo;
+}
+
+export interface MovePositionsResult {
+  clientId: string;
+  blockTdId: string;
+  state: 'filled' | 'failed' | 'pending' | string;
+  ts: string;
+  fromAcct: string;
+  toAcct: string;
+  legs: MovePositionLegResult[];
 }

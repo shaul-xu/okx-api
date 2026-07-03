@@ -35,6 +35,7 @@ export interface OrderResult {
   tag: string;
   ts: string;
   sCode: numberInString;
+  subCode?: string;
   sMsg: string;
 }
 
@@ -42,6 +43,7 @@ export interface CancelledOrderResult {
   clOrdId: string;
   ordId: string;
   sCode: string;
+  subCode?: string;
   sMsg: string;
 }
 
@@ -50,6 +52,7 @@ export interface AmendedOrder {
   ordId: string;
   reqId: string;
   sCode: string;
+  subCode?: string;
   sMsg: string;
 }
 export interface ClosedPositions {

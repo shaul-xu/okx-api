@@ -109,3 +109,17 @@ export interface GetEventContractMarketsRequest {
   before?: string;
   after?: string;
 }
+
+export interface GetInsuranceFundRequest {
+  instType?: string;
+  type?:
+    | 'liquidation_balance_deposit'
+    | 'bankruptcy_loss'
+    | 'platform_revenue'
+    | 'adl';
+  instFamily?: string;
+  ccy?: string;
+  before?: string;
+  after?: string;
+  limit?: string;
+}
