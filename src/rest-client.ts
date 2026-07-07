@@ -2490,7 +2490,7 @@ export class RestClient extends BaseRestClient {
   getOpenInterestAndVolumeStrike(params: {
     ccy: string;
     expTime: string;
-    period: '8H' | '1D';
+    period?: '8H' | '1D';
   }): Promise<any[]> {
     return this.get(
       '/api/v5/rubik/stat/option/open-interest-volume-strike',

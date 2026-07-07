@@ -265,10 +265,23 @@ describe('Public Inverse REST API Endpoints', () => {
   });
 
   it('getOpenInterestAndVolumeStrike()', async () => {
+    // Strike stats only accept currently valid option expiries, so derive one
+    const expiries = await api.getOpenInterestAndVolumeExpiry({
+      ccy: 'BTC',
+      period: '1D',
+    });
+    expect(expiries.length).toBeGreaterThan(0);
+
+    // Expiry rows are returned as [ts, expTime, ...]. Short-dated expiries can
+    // be listed but still rejected by this endpoint during listing/expiry
+    // windows, so use the farthest returned expiry for a more stable fixture.
+    const expTime = expiries[expiries.length - 1][1];
+    expect(expTime).toStrictEqual(expect.any(String));
+
     expect(
       await api.getOpenInterestAndVolumeStrike({
         ccy: 'BTC',
-        expTime: '20241223',
+        expTime,
         period: '1D',
       }),
     ).toMatchObject(successResponseList());
