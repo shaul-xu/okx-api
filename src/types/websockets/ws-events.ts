@@ -16,9 +16,16 @@ export function isMessageEvent(msg: unknown): msg is MessageEventLike {
 }
 
 export interface WsEvent {
-  event: 'error' | 'login' | 'subscribe' | 'unsubscribe' | 'channel-conn-count';
+  event:
+    | 'error'
+    | 'login'
+    | 'subscribe'
+    | 'unsubscribe'
+    | 'channel-conn-count'
+    | 'notice';
   code?: string;
   msg?: string;
+  connId?: string;
   arg?: any;
   data?: any;
 }

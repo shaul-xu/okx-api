@@ -6,7 +6,7 @@ import { RestClient } from 'okx-api';
 // This OKX API SDK is available on npm via "npm install okx-api"
 // ENDPOINT: /api/v5/public/event-contract/markets
 // METHOD: GET
-// PUBLIC: NO
+// PUBLIC: YES
 
 const client = new RestClient({
     apiKey: 'apiKeyHere',

@@ -201,6 +201,28 @@ export interface PublicFundingRate {
   ts: string;
 }
 
+export interface InsuranceFundDetail {
+  ccy?: string;
+  bal?: string;
+  amt?: string;
+  type?: string;
+  maxBal?: string;
+  maxBalTs?: string;
+  decRate?: string;
+  adlType?: string;
+  adlBal?: string;
+  adlRecBal?: string;
+  /** @deprecated Returns "" per 2026-06-09 changelog */
+  adlRate?: string;
+  /** @deprecated Returns "" per 2026-06-09 changelog */
+  adlRecRate?: string;
+}
+
+export interface InsuranceFund {
+  instType?: string;
+  details: InsuranceFundDetail[];
+}
+
 export interface FundingRateHistory {
   /** Perpetual (`SWAP`) or X-Perp (`FUTURES`). */
   instType: string;

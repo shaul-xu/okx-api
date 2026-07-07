@@ -23,6 +23,7 @@ export type WsPrivateChannel =
   | 'orders-algo'
   | 'algo-advance'
   | 'liquidation-warning'
+  | 'adl-warning'
   | 'account-greeks'
   | 'grid-orders-spot'
   | 'grid-orders-contract'

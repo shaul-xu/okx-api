@@ -49,8 +49,6 @@ Notes:
 Directory Structure
 ================================================================
 examples/
-  auth/
-    fasterHmacSign.ts
   Rest/
     app.okx.com.ts
     demo-trading.ts
@@ -2602,6 +2600,33 @@ export interface GetEventContractMarketsRequest {
   before?: string;
   after?: string;
 }
+⋮----
+/**
+ * @see GET /api/v5/public/insurance-fund (Get security fund)
+ * @see 2026-06-09 changelog — `regular_update` removed; `adl` and `platform_revenue` deprecated (return empty).
+ */
+export interface GetInsuranceFundRequest {
+  instType?: string;
+  /**
+   * `adl` and `platform_revenue` are deprecated and return empty values.
+   * `regular_update` was removed in 2026-06-09.
+   */
+  type?:
+    | 'liquidation_balance_deposit'
+    | 'bankruptcy_loss'
+    | 'platform_revenue'
+    | 'adl';
+  instFamily?: string;
+  ccy?: string;
+  before?: string;
+  after?: string;
+  limit?: string;
+}
+⋮----
+/**
+   * `adl` and `platform_revenue` are deprecated and return empty values.
+   * `regular_update` was removed in 2026-06-09.
+   */
 
 ================
 File: src/types/rest/request/stable-rewards.ts
@@ -3367,23 +3392,36 @@ export interface OrderResult {
   tag: string;
   ts: string;
   sCode: numberInString;
+  /** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
+  subCode?: string;
   sMsg: string;
 }
+⋮----
+/** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
 ⋮----
 export interface CancelledOrderResult {
   clOrdId: string;
   ordId: string;
   sCode: string;
+  /** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
+  subCode?: string;
   sMsg: string;
 }
+⋮----
+/** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
 ⋮----
 export interface AmendedOrder {
   clOrdId: string;
   ordId: string;
   reqId: string;
   sCode: string;
+  /** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
+  subCode?: string;
   sMsg: string;
 }
+⋮----
+/** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
+⋮----
 export interface ClosedPositions {
   instId: string;
   posSide: PositionSide;
@@ -3733,95 +3771,6 @@ export interface CancelAllAfterResponse {
 }
 
 ================
-File: src/types/rest/client.ts
-================
-import { APIMarket } from '../shared.js';
-⋮----
-export interface RestClientOptions {
-  apiKey?: string;
-  apiSecret?: string;
-  apiPass?: string;
-
-  /**
-   * The API group this client should connect to:
-   * - market: 'prod' (default: OKX Global REST at https://openapi.okx.com)
-   * - market: 'EEA' // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
-   * - market: 'US' // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
-   */
-  market?: APIMarket;
-
-  /**
-   * Set to `true` to use OKX's demo trading functionality
-   */
-  demoTrading?: boolean;
-
-  // Default: false. If true, we'll throw errors if any params are undefined
-  strict_param_validation?: boolean;
-
-  // Optionally override REST API base URL (e.g. 'https://www.okx.com' or 'https://openapi.okx.com').
-  // Note: to use my.okx or app.okx or eea.okx or us.okx, use the "market" parameter
-  // e.g 'https://eea.okx.com'
-  baseUrl?: string;
-
-  // Default: true. whether to try and post-process request exceptions.
-  parse_exceptions?: boolean;
-
-  /**
-   * Enable keep alive for REST API requests (via axios).
-   */
-  keepAlive?: boolean;
-
-  /**
-   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
-   * Only relevant if keepAlive is set to true.
-   * Default: 1000 (defaults comes from https agent)
-   */
-  keepAliveMsecs?: number;
-
-  /**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
-}
-⋮----
-/**
-   * The API group this client should connect to:
-   * - market: 'prod' (default: OKX Global REST at https://openapi.okx.com)
-   * - market: 'EEA' // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
-   * - market: 'US' // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
-   */
-⋮----
-/**
-   * Set to `true` to use OKX's demo trading functionality
-   */
-⋮----
-// Default: false. If true, we'll throw errors if any params are undefined
-⋮----
-// Optionally override REST API base URL (e.g. 'https://www.okx.com' or 'https://openapi.okx.com').
-// Note: to use my.okx or app.okx or eea.okx or us.okx, use the "market" parameter
-// e.g 'https://eea.okx.com'
-⋮----
-// Default: true. whether to try and post-process request exceptions.
-⋮----
-/**
-   * Enable keep alive for REST API requests (via axios).
-   */
-⋮----
-/**
-   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
-   * Only relevant if keepAlive is set to true.
-   * Default: 1000 (defaults comes from https agent)
-   */
-⋮----
-/**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-
-================
 File: src/types/websockets/ws-api-response.ts
 ================
 import { numberInString } from '../rest/shared.js';
@@ -3831,31 +3780,47 @@ export interface WSAPICancelOrderResultV5 {
   ordId: string;
   ts: numberInString;
   sCode: string;
+  /** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
+  subCode?: string;
   sMsg: string;
 }
+⋮----
+/** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
 ⋮----
 export interface WSAPISpreadPlaceOrderResultV5 {
   clOrdId: string;
   ordId: string;
   tag: string;
   sCode: numberInString;
+  /** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
+  subCode?: string;
   sMsg: string;
 }
+⋮----
+/** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
 ⋮----
 export interface WSAPISpreadAmendOrderResultV5 {
   clOrdId: string;
   ordId: string;
   reqId: string;
   sCode: string;
+  /** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
+  subCode?: string;
   sMsg: string;
 }
+⋮----
+/** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
 ⋮----
 export interface WSAPISpreadCancelOrderResultV5 {
   clOrdId: string;
   ordId: string;
   sCode: string;
+  /** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
+  subCode?: string;
   sMsg: string;
 }
+⋮----
+/** Sub-code of sCode. Returns "" when sCode is 0. @see 2026-03-10 changelog */
 ⋮----
 /**
  * @see Ws public channel: estimated-price
@@ -4223,9 +4188,16 @@ export interface MessageEventLike {
 export function isMessageEvent(msg: unknown): msg is MessageEventLike
 ⋮----
 export interface WsEvent {
-  event: 'error' | 'login' | 'subscribe' | 'unsubscribe' | 'channel-conn-count';
+  event:
+    | 'error'
+    | 'login'
+    | 'subscribe'
+    | 'unsubscribe'
+    | 'channel-conn-count'
+    | 'notice';
   code?: string;
   msg?: string;
+  connId?: string;
   arg?: any;
   data?: any;
 }
@@ -4253,6 +4225,45 @@ export interface WsChannelConnInfoEvent extends WsEvent {
 }
 ⋮----
 export type WsResponse = WsEvent;
+⋮----
+/**
+ * Order book push for `books`, `books-l2-tbt`, `books50-l2-tbt`.
+ * @see 2026-06-23 changelog — `checksum` is deprecated (fixed to 0); use `seqId`/`prevSeqId` instead.
+ */
+export interface WsOrderBookLevel {
+  asks: [string, string, string, string][];
+  bids: [string, string, string, string][];
+  ts: string;
+  /** @deprecated Fixed to 0 — use seqId/prevSeqId for integrity verification */
+  checksum?: number;
+  prevSeqId?: number;
+  seqId?: number;
+}
+⋮----
+/** @deprecated Fixed to 0 — use seqId/prevSeqId for integrity verification */
+⋮----
+/**
+ * @see WS / ADL warning channel
+ * @see 2026-06-09 changelog — several fields return "" in warning/adl state; normal state no longer pushes.
+ */
+export interface WsAdlWarningData {
+  state: 'normal' | 'warning' | 'adl' | string;
+  ccy?: string;
+  maxBal?: string;
+  maxBalTs?: string;
+  adlType?: string;
+  adlBal?: string;
+  adlRecBal?: string;
+  decRate?: string;
+  /** @deprecated Returns "" per 2026-06-09 changelog */
+  adlRate?: string;
+  /** @deprecated Returns "" per 2026-06-09 changelog */
+  adlRecRate?: string;
+}
+⋮----
+/** @deprecated Returns "" per 2026-06-09 changelog */
+⋮----
+/** @deprecated Returns "" per 2026-06-09 changelog */
 
 ================
 File: src/types/websockets/ws-request.ts
@@ -4282,6 +4293,7 @@ export type WsPrivateChannel =
   | 'orders-algo'
   | 'algo-advance'
   | 'liquidation-warning'
+  | 'adl-warning'
   | 'account-greeks'
   | 'grid-orders-spot'
   | 'grid-orders-contract'
@@ -4563,38 +4575,6 @@ export type WsChannelSubUnSubRequestArg =
   | WsPublicChannelArgEventContractMarkets;
 
 ================
-File: src/types/shared.ts
-================
-export interface APICredentials {
-  apiKey: string;
-  apiSecret: string;
-  apiPass: string;
-}
-⋮----
-/**
- * The API Market represents the OKX Domain that you have signed up for. At this time, there are 3 supported domain groups:
- *
- * - GLOBAL, OKX Global (REST: openapi.okx.com; www.okx.com also works).
- * - EEA, otherwise known as "my.okx.com".
- * - US, otherwise known as "app.okx.com".
- */
-export type APIMarket =
-  | 'prod' // same as GLOBAL. Kept for some backwards compatibility
-  // OKX Global REST: https://openapi.okx.com (recommended). www.okx.com remains supported.
-  | 'GLOBAL'
-  // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
-  | 'EEA'
-  // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
-  | 'US';
-⋮----
-| 'prod' // same as GLOBAL. Kept for some backwards compatibility
-// OKX Global REST: https://openapi.okx.com (recommended). www.okx.com remains supported.
-⋮----
-// also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
-⋮----
-// also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
-
-================
 File: src/websocket-client-legacy.ts
 ================
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -4831,78 +4811,6 @@ function generateConfig(name)
 // The REST client's https.Agent (for keepAlive) is Node.js-only and won't work in browsers
 ⋮----
 // Code is already transpiled from TypeScript, no additional loaders needed
-
-================
-File: examples/auth/fasterHmacSign.ts
-================
-import { createHmac } from 'crypto';
-⋮----
-import {
-  DefaultLogger,
-  RestClient,
-  WebsocketClient,
-} from '../../src/index.js';
-⋮----
-// or
-// import { createHmac } from 'crypto';
-// import { DefaultLogger, RestClient, WebsocketClient } from 'okx-api';
-⋮----
-/**
- * Injecting a custom signMessage function.
- *
- * As of version 3.0.0 of the okx-api Node.js/TypeScript/JavaScript
- * SDK for OKX, the SDK uses the Web Crypto API for signing requests.
- * While it is compatible with Node and Browser environments, it is
- * slightly slower than using Node's native crypto module (only
- * available in backend Node environments).
- *
- * For latency sensitive users, you can inject the previous node crypto sign
- * method (or your own even faster implementation), if this change affects you.
- *
- * This example demonstrates how to inject a custom sign function, to achieve
- * the same peformance as seen before the Web Crypto API was introduced.
- *
- * For context on standard usage, the "signMessage" function is used:
- * - During every single API call
- * - After opening a new private WebSocket connection
- */
-⋮----
-// If running from CLI in unix, you can pass env vars as such:
-// API_KEY_COM='lkm12n3-2ba3-1mxf-fn13-lkm12n3a' API_SECRET_COM='035B2B9637E1BDFFEE2646BFBDDB8CE4' API_PASSPHRASE_COM='ComplexPa$$!23$5^' ts-node examples/rest-private-trade.ts
-⋮----
-// note the single quotes, preventing special characters such as $ from being incorrectly passed
-⋮----
-// apiKey: 'apiKeyHere',
-⋮----
-// apiSecret: 'apiSecretHere',
-⋮----
-// apiPass: 'apiPassHere',
-/**
-   * Overkill in almost every case, but if you need any optimisation available,
-   * you can inject a faster sign mechanism such as node's native createHmac:
-   */
-⋮----
-// Optional, uncomment the "trace" override to log a lot more info about what the WS client is doing
-⋮----
-// trace: (...params) => console.log('trace', ...params),
-⋮----
-// For private topics, include one or more accounts in an array. Otherwise only public topics will work
-⋮----
-/**
-     * Overkill in almost every case, but if you need any optimisation available,
-     * you can inject a faster sign mechanism such as node's native createHmac:
-     */
-⋮----
-function setWsClientEventListeners(
-  websocketClient: WebsocketClient,
-  accountRef: string,
-): Promise<void>
-⋮----
-// console.log('raw message received ', JSON.stringify(data, null, 2));
-⋮----
-// Simple promise to ensure we're subscribed before trying anything else
-⋮----
-// Start trading
 
 ================
 File: examples/Rest/rest-private-trade.ts
@@ -5400,6 +5308,97 @@ fromWdId: string; // Internal transfer initiator's withdrawal ID. If deposit com
 actualDepBlkConfirm: string; // The actual amount of blockchain confirmed in a single deposit
 
 ================
+File: src/types/rest/client.ts
+================
+import { APIMarket } from '../shared.js';
+⋮----
+export interface RestClientOptions {
+  apiKey?: string;
+  apiSecret?: string;
+  apiPass?: string;
+
+  /**
+   * The API group this client should connect to:
+   * - market: 'prod' (default: connects to OKX global) https://www.okx.com/docs-v5/en/#overview-production-trading-services
+   * - market: 'OPENAPI_GLOBAL' // OKX Global REST at https://openapi.okx.com
+   * - market: 'EEA' // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
+   * - market: 'US' // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
+   */
+  market?: APIMarket;
+
+  /**
+   * Set to `true` to use OKX's demo trading functionality
+   */
+  demoTrading?: boolean;
+
+  // Default: false. If true, we'll throw errors if any params are undefined
+  strict_param_validation?: boolean;
+
+  // Optionally override REST API base URL (e.g. 'https://www.okx.com' or 'https://openapi.okx.com').
+  // Note: to use my.okx or app.okx or eea.okx or us.okx, use the "market" parameter
+  // e.g 'https://eea.okx.com'
+  baseUrl?: string;
+
+  // Default: true. whether to try and post-process request exceptions.
+  parse_exceptions?: boolean;
+
+  /**
+   * Enable keep alive for REST API requests (via axios).
+   */
+  keepAlive?: boolean;
+
+  /**
+   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+   * Only relevant if keepAlive is set to true.
+   * Default: 1000 (defaults comes from https agent)
+   */
+  keepAliveMsecs?: number;
+
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+}
+⋮----
+/**
+   * The API group this client should connect to:
+   * - market: 'prod' (default: connects to OKX global) https://www.okx.com/docs-v5/en/#overview-production-trading-services
+   * - market: 'OPENAPI_GLOBAL' // OKX Global REST at https://openapi.okx.com
+   * - market: 'EEA' // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
+   * - market: 'US' // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
+   */
+⋮----
+/**
+   * Set to `true` to use OKX's demo trading functionality
+   */
+⋮----
+// Default: false. If true, we'll throw errors if any params are undefined
+⋮----
+// Optionally override REST API base URL (e.g. 'https://www.okx.com' or 'https://openapi.okx.com').
+// Note: to use my.okx or app.okx or eea.okx or us.okx, use the "market" parameter
+// e.g 'https://eea.okx.com'
+⋮----
+// Default: true. whether to try and post-process request exceptions.
+⋮----
+/**
+   * Enable keep alive for REST API requests (via axios).
+   */
+⋮----
+/**
+   * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+   * Only relevant if keepAlive is set to true.
+   * Default: 1000 (defaults comes from https agent)
+   */
+⋮----
+/**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+
+================
 File: src/types/rest/shared.ts
 ================
 export type numberInString<T = string> = T;
@@ -5517,104 +5516,41 @@ export type WithdrawState =
   | '12';
 
 ================
-File: src/types/websockets/ws-general.ts
+File: src/types/shared.ts
 ================
-import type { ClientRequestArgs } from 'http';
-import WebSocket from 'isomorphic-ws';
-⋮----
-import { RestClientOptions } from '../rest/client.js';
-import { APICredentials, APIMarket } from '../shared.js';
-⋮----
-export interface WSClientConfigurableOptions {
-  accounts?: APICredentials[];
-
-  /**
-   * The API group this client should connect to:
-   * - market: 'prod' (default: connects to OKX global) https://www.okx.com/docs-v5/en/#overview-production-trading-services
-   * - market: 'EEA' // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
-   * - market: 'US' // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
-   */
-  market?: APIMarket;
-
-  /**
-   * Set to `true` to use OKX's demo trading functionality
-   */
-  demoTrading?: boolean;
-
-  // Disable ping/pong ws heartbeat mechanism (not recommended).
-  // Not supported for OKX
-  disableHeartbeat?: boolean;
-
-  /** How often to check if the connection is alive */
-  pingInterval?: number;
-
-  /** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
-  pongTimeout?: number;
-
-  /** Delay in milliseconds before respawning the connection */
-  reconnectTimeout?: number;
-
-  requestOptions?: RestClientOptions;
-
-  wsOptions?: {
-    protocols?: string[];
-    agent?: any;
-  } & Partial<WebSocket.ClientOptions | ClientRequestArgs>;
-  wsUrl?: string;
-
-  /**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+export interface APICredentials {
+  apiKey: string;
+  apiSecret: string;
+  apiPass: string;
 }
 ⋮----
 /**
-   * The API group this client should connect to:
-   * - market: 'prod' (default: connects to OKX global) https://www.okx.com/docs-v5/en/#overview-production-trading-services
-   * - market: 'EEA' // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
-   * - market: 'US' // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
-   */
+ * The API Market represents the OKX Domain that you have signed up for. At this time, there are 4 supported domain groups:
+ *
+ * - GLOBAL, otherwise known as "www.okx.com".
+ * - OPENAPI_GLOBAL, OKX Global REST at openapi.okx.com (same WS as GLOBAL).
+ * - EEA, otherwise known as "my.okx.com".
+ * - US, otherwise known as "app.okx.com".
+ */
+export type APIMarket =
+  | 'prod' // same as GLOBAL. Kept for some backwards compatibility
+  // also known as "www.okx.com" or OKX Global: https://www.okx.com/docs-v5/en/#overview-production-trading-services
+  | 'GLOBAL'
+  // OKX Global REST at https://openapi.okx.com. WebSocket URLs unchanged (same as GLOBAL).
+  | 'OPENAPI_GLOBAL'
+  // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
+  | 'EEA'
+  // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
+  | 'US';
 ⋮----
-/**
-   * Set to `true` to use OKX's demo trading functionality
-   */
+| 'prod' // same as GLOBAL. Kept for some backwards compatibility
+// also known as "www.okx.com" or OKX Global: https://www.okx.com/docs-v5/en/#overview-production-trading-services
 ⋮----
-// Disable ping/pong ws heartbeat mechanism (not recommended).
-// Not supported for OKX
+// OKX Global REST at https://openapi.okx.com. WebSocket URLs unchanged (same as GLOBAL).
 ⋮----
-/** How often to check if the connection is alive */
+// also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
 ⋮----
-/** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
-⋮----
-/** Delay in milliseconds before respawning the connection */
-⋮----
-/**
-   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
-   *
-   * Look in the examples folder for a demonstration on using node's createHmac instead.
-   */
-⋮----
-export interface WebsocketClientOptions extends WSClientConfigurableOptions {
-  market: APIMarket;
-  pongTimeout: number;
-  pingInterval: number;
-  reconnectTimeout: number;
-  authPrivateConnectionsOnConnect: boolean;
-  authPrivateRequests: boolean;
-
-  /**
-   * Whether to use native WebSocket ping/pong frames for heartbeats
-   */
-  useNativeHeartbeats: boolean;
-}
-⋮----
-/**
-   * Whether to use native WebSocket ping/pong frames for heartbeats
-   */
-⋮----
-export type WsEventInternalSrc = 'event' | 'function';
+// also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
 
 ================
 File: src/index.ts
@@ -6099,6 +6035,45 @@ export interface BillsHistoryArchiveRequest {
 }
 ⋮----
 /** Comma-separated bill type ids, e.g. 1,2,3. If omitted, all types. */
+⋮----
+export interface MovePositionLegFrom {
+  posId: string;
+  side: 'buy' | 'sell';
+  sz: string;
+}
+⋮----
+export interface MovePositionLegTo {
+  tdMode?: 'cross' | 'isolated';
+  posSide?: PositionSide;
+  ccy?: string;
+}
+⋮----
+export interface MovePositionLeg {
+  from: MovePositionLegFrom;
+  to: MovePositionLegTo;
+}
+⋮----
+/**
+ * @see POST /api/v5/account/move-positions
+ */
+export interface MovePositionsRequest {
+  fromAcct: string;
+  toAcct: string;
+  legs: MovePositionLeg[];
+  clientId: string;
+}
+⋮----
+/**
+ * @see GET /api/v5/account/move-positions-history
+ */
+export interface GetMovePositionsHistoryRequest {
+  blockTdId?: string;
+  clientId?: string;
+  beginTs?: string;
+  endTs?: string;
+  limit?: string;
+  state?: 'filled' | 'pending';
+}
 
 ================
 File: src/types/rest/request/funding.ts
@@ -6354,6 +6329,108 @@ export interface WSAPICancelSpreadOrderRequestV5 {
 export interface WSAPISpreadMassCancelOrdersRequestV5 {
   sprdId?: string;
 }
+
+================
+File: src/types/websockets/ws-general.ts
+================
+import type { ClientRequestArgs } from 'http';
+import WebSocket from 'isomorphic-ws';
+⋮----
+import { RestClientOptions } from '../rest/client.js';
+import { APICredentials, APIMarket } from '../shared.js';
+⋮----
+export interface WSClientConfigurableOptions {
+  accounts?: APICredentials[];
+
+  /**
+   * The API group this client should connect to:
+   * - market: 'prod' (default: connects to OKX global) https://www.okx.com/docs-v5/en/#overview-production-trading-services
+   * - market: 'OPENAPI_GLOBAL' // OKX Global REST at https://openapi.okx.com (WS same as GLOBAL)
+   * - market: 'EEA' // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
+   * - market: 'US' // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
+   */
+  market?: APIMarket;
+
+  /**
+   * Set to `true` to use OKX's demo trading functionality
+   */
+  demoTrading?: boolean;
+
+  // Disable ping/pong ws heartbeat mechanism (not recommended).
+  // Not supported for OKX
+  disableHeartbeat?: boolean;
+
+  /** How often to check if the connection is alive */
+  pingInterval?: number;
+
+  /** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
+  pongTimeout?: number;
+
+  /** Delay in milliseconds before respawning the connection */
+  reconnectTimeout?: number;
+
+  requestOptions?: RestClientOptions;
+
+  wsOptions?: {
+    protocols?: string[];
+    agent?: any;
+  } & Partial<WebSocket.ClientOptions | ClientRequestArgs>;
+  wsUrl?: string;
+
+  /**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+  customSignMessageFn?: (message: string, secret: string) => Promise<string>;
+}
+⋮----
+/**
+   * The API group this client should connect to:
+   * - market: 'prod' (default: connects to OKX global) https://www.okx.com/docs-v5/en/#overview-production-trading-services
+   * - market: 'OPENAPI_GLOBAL' // OKX Global REST at https://openapi.okx.com (WS same as GLOBAL)
+   * - market: 'EEA' // also known as "my.okx.com" https://my.okx.com/docs-v5/en/#overview-production-trading-services
+   * - market: 'US' // also known as "app.okx.com" https://app.okx.com/docs-v5/en/#overview-production-trading-services
+   */
+⋮----
+/**
+   * Set to `true` to use OKX's demo trading functionality
+   */
+⋮----
+// Disable ping/pong ws heartbeat mechanism (not recommended).
+// Not supported for OKX
+⋮----
+/** How often to check if the connection is alive */
+⋮----
+/** How long to wait for a pong (heartbeat reply) before assuming the connection is dead */
+⋮----
+/** Delay in milliseconds before respawning the connection */
+⋮----
+/**
+   * Allows you to provide a custom "signMessage" function, e.g. to use node's much faster createHmac method
+   *
+   * Look in the examples folder for a demonstration on using node's createHmac instead.
+   */
+⋮----
+export interface WebsocketClientOptions extends WSClientConfigurableOptions {
+  market: APIMarket;
+  pongTimeout: number;
+  pingInterval: number;
+  reconnectTimeout: number;
+  authPrivateConnectionsOnConnect: boolean;
+  authPrivateRequests: boolean;
+
+  /**
+   * Whether to use native WebSocket ping/pong frames for heartbeats
+   */
+  useNativeHeartbeats: boolean;
+}
+⋮----
+/**
+   * Whether to use native WebSocket ping/pong frames for heartbeats
+   */
+⋮----
+export type WsEventInternalSrc = 'event' | 'function';
 
 ================
 File: src/websocket-client.ts
@@ -6683,661 +6760,6 @@ type DeferredWSAPIResponse = TWSAPIResponse & {
 // Return deferred promise, so caller can await this call
 
 ================
-File: src/types/rest/response/private-account.ts
-================
-import {
-  AccountLevel,
-  MarginMode,
-  PositionSide,
-  WithdrawState,
-} from '../shared.js';
-import type { InstrumentUpcomingParamChange } from './public-data.js';
-⋮----
-export interface AccountBalanceDetail {
-  availBal: string;
-  availEq: string;
-  cashBal: string;
-  ccy: string;
-  crossLiab: string;
-  disEq: string;
-  eq: string;
-  eqUsd: string;
-  frozenBal: string;
-  interest: string;
-  isoEq: string;
-  isoLiab: string;
-  isoUpl: string;
-  liab: string;
-  maxLoan: string;
-  mgnRatio: string;
-  notionalLever: string;
-  ordFrozen: string;
-  twap: string;
-  uTime: string;
-  upl: string;
-  uplLiab: string;
-  stgyEq: string;
-  spotBal: string; // Spot balance. The unit is currency, e.g. BTC.
-  openAvgPx: string[]; // Spot average cost price. The unit is USD.
-  accAvgPx: string[]; // Spot accumulated cost price. The unit is USD.
-  spotUpl: string; // Spot unrealized profit and loss. The unit is USD.
-  spotUplRatio: string; // Spot unrealized profit and loss ratio.
-  totalPnl: string; // Spot accumulated profit and loss. The unit is USD.
-  totalPnlRatio: string; // Spot accumulated profit and loss ratio.
-}
-⋮----
-spotBal: string; // Spot balance. The unit is currency, e.g. BTC.
-openAvgPx: string[]; // Spot average cost price. The unit is USD.
-accAvgPx: string[]; // Spot accumulated cost price. The unit is USD.
-spotUpl: string; // Spot unrealized profit and loss. The unit is USD.
-spotUplRatio: string; // Spot unrealized profit and loss ratio.
-totalPnl: string; // Spot accumulated profit and loss. The unit is USD.
-totalPnlRatio: string; // Spot accumulated profit and loss ratio.
-⋮----
-export interface AccountBalance {
-  adjEq: string;
-  details: AccountBalanceDetail[];
-  imr: string;
-  isoEq: string;
-  mgnRatio: string;
-  mmr: string;
-  notionalUsd: string;
-  notionalUsdForBorrow: string;
-  notionalUsdForFutures: string;
-  notionalUsdForOption: string;
-  notionalUsdForSwap: string;
-  ordFroz: string;
-  totalEq: string;
-  uTime: string;
-  spotCopyTradingEq: string;
-  upl: string;
-  frpType?: string;
-  // Delta neutral strategy fields
-  delta: string; // Delta (USD)
-  deltaLever: string; // Delta neutral strategy account level delta leverage (deltaLever = delta / totalEq)
-  deltaNeutralStatus: string; // Delta risk status: 0=normal, 1=transfer restricted, 2=delta reducing
-}
-⋮----
-// Delta neutral strategy fields
-delta: string; // Delta (USD)
-deltaLever: string; // Delta neutral strategy account level delta leverage (deltaLever = delta / totalEq)
-deltaNeutralStatus: string; // Delta risk status: 0=normal, 1=transfer restricted, 2=delta reducing
-⋮----
-export interface AccountPosition {
-  adl: string;
-  availPos: string;
-  avgPx: string;
-  cTime: string;
-  ccy: string;
-  deltaBS: string;
-  deltaPA: string;
-  gammaBS: string;
-  gammaPA: string;
-  imr: string;
-  instId: string;
-  instType: string;
-  interest: string;
-  usdPx: string;
-  last: string;
-  lever: string;
-  liab: string;
-  liabCcy: string;
-  liqPx: string;
-  markPx: string;
-  margin: string;
-  mgnMode: MarginMode;
-  mgnRatio: string;
-  mmr: string;
-  notionalUsd: string;
-  optVal: string;
-  pTime: string;
-  pos: string;
-  hedgedPos: string; // Hedged position size. Only returned for accounts in delta neutral strategy (stgyType:1). Returns "" for accounts in general strategy.
-  posCcy: string;
-  posId: string;
-  posSide: PositionSide;
-  thetaBS: string;
-  thetaPA: string;
-  tradeId: string;
-  uTime: string;
-  upl: string;
-  uplRatio: string;
-  vegaBS: string;
-  vegaPA: string;
-}
-⋮----
-hedgedPos: string; // Hedged position size. Only returned for accounts in delta neutral strategy (stgyType:1). Returns "" for accounts in general strategy.
-⋮----
-export interface HistoricAccountPosition {
-  cTime: string;
-  ccy: string;
-  closeAvgPx: string;
-  closeTotalPos: string;
-  instId: string;
-  instType: string;
-  lever: string;
-  mgnMode: MarginMode;
-  openAvgPx: string;
-  openMaxPos: string;
-  pnl: string;
-  pnlRatio: string;
-  posId: string;
-  posSide: PositionSide;
-  triggerPx: string;
-  type: string;
-  uTime: string;
-  uly: string;
-}
-⋮----
-export interface AccountBalanceRiskData {
-  ccy: string;
-  disEq: string;
-  eq: string;
-}
-⋮----
-export interface AccountPositionRiskData {
-  baseBal: string;
-  ccy: string;
-  instId: string;
-  instType: string;
-  mgnMode: MarginMode;
-  notionalCcy: string;
-  notionalUsd: string;
-  pos: string;
-  posCcy: string;
-  posId: string;
-  posSide: PositionSide;
-  quoteBal: string;
-}
-⋮----
-export interface AccountPositionRisk {
-  adjEq: string;
-  balData: AccountBalanceRiskData[];
-  posData: AccountPositionRiskData[];
-  ts: string;
-}
-⋮----
-export interface AccountBill {
-  bal: string;
-  balChg: string;
-  billId: string;
-  ccy: string;
-  execType: string;
-  fee: string;
-  from: string;
-  instId: string;
-  instType: string;
-  mgnMode: MarginMode;
-  notes: string;
-  ordId: string;
-  pnl: string;
-  posBal: string;
-  posBalChg: string;
-  subType: string;
-  sz: string;
-  to: string;
-  ts: string;
-  type: string;
-  earnAmt?: string;
-  earnApr?: string;
-}
-⋮----
-export interface BillSubTypeDetail {
-  subType: string;
-  subTypeDesc: string;
-}
-⋮----
-/**
- * @see GET /api/v5/account/subtypes
- */
-export interface AccountBillTypeDefinition {
-  type: string;
-  typeDesc: string;
-  subTypeDetails: BillSubTypeDetail[];
-}
-⋮----
-/**
- * Apply (POST) may return { result, ts }; get link (GET) may return { fileHref, state, ts }.
- */
-export interface AccountHistoryBill {
-  fileHref?: string;
-  result?: string;
-  state?: 'finished' | 'ongoing' | 'failed' | string;
-  ts: string;
-}
-⋮----
-export interface AccountConfiguration {
-  acctLv: string;
-  autoLoan: boolean;
-  ctIsoMode: string;
-  greeksType: string;
-  level: string;
-  levelTmp: string;
-  mgnIsoMode: string;
-  posMode: string;
-  spotOffsetType: string;
-  stgyType: string; // Strategy type: 0=general strategy, 1=delta neutral strategy
-  uid: string;
-  label: string;
-  roleType: string;
-  traderInsts: any[];
-  spotRoleType: string;
-  spotTraderInsts: any[];
-  opAuth: string;
-  kycLv: string;
-  ip: string;
-  perm: string;
-  mainUid: string;
-  discountType: '0' | '1';
-  enableSpotBorrow: boolean;
-  spotBorrowAutoRepay: boolean;
-  feeType: string;
-  settleCcy: string;
-  settleCcyList: string[];
-}
-⋮----
-stgyType: string; // Strategy type: 0=general strategy, 1=delta neutral strategy
-⋮----
-export interface AccountPositionModeResult {
-  posMode: string;
-}
-⋮----
-export interface AccountModeResult {
-  acctLv: AccountLevel;
-}
-⋮----
-export interface AutoLoanResult {
-  autoLoan: boolean;
-}
-⋮----
-export interface AccountLeverageResult {
-  lever: string;
-  mgnMode: MarginMode;
-  instId: string;
-  posSide: PositionSide;
-}
-⋮----
-export interface AccountMaxOrderAmount {
-  ccy: string;
-  instId: string;
-  maxBuy: string;
-  maxSell: string;
-}
-⋮----
-export interface AccountMaxTradableAmount {
-  instId: string;
-  availBuy: string;
-  availSell: string;
-}
-⋮----
-export interface AccountChangeMarginResult {
-  amt: string;
-  ccy: string;
-  instId: string;
-  leverage: string;
-  posSide: PositionSide;
-  type: string;
-}
-⋮----
-export interface AccountLeverage {
-  instId: string;
-  mgnMode: MarginMode;
-  posSide: PositionSide;
-  lever: string;
-}
-⋮----
-export interface AccountMaxLoan {
-  instId: string;
-  mgnMode: MarginMode;
-  mgnCcy: string;
-  maxLoan: string;
-  ccy: string;
-  side: string;
-}
-⋮----
-export interface FeeGroup {
-  taker: string;
-  maker: string;
-  groupId: string;
-}
-⋮----
-export interface AccountFeeRate {
-  category: never;
-  delivery: string;
-  exercise: string;
-  instType: string;
-  level: string;
-  maker: string;
-  makerU: string;
-  taker: string;
-  takerU: string;
-  settle?: string;
-  ts: string;
-  ruleType: string;
-  feeGroup?: FeeGroup[]; // Fee groups. Applicable to SPOT/MARGIN/SWAP/FUTURES/OPTION
-}
-⋮----
-feeGroup?: FeeGroup[]; // Fee groups. Applicable to SPOT/MARGIN/SWAP/FUTURES/OPTION
-⋮----
-export interface AccountIsolatedMode {
-  isoMode: 'autonomy' | 'automatic';
-}
-⋮----
-export interface AdjustLeverageInfo {
-  estAvailQuoteTrans: string;
-  estAvailTrans: string;
-  estLiqPx: string;
-  estMgn: string;
-  estQuoteMgn: string;
-  estMaxAmt: string;
-  estQuoteMaxAmt: string;
-  existOrd: boolean;
-  maxLever: string;
-  minLever: string;
-}
-⋮----
-export interface InterestAccrued {
-  type: '1' | '2';
-  ccy: string;
-  instId: string;
-  mgnMode: MarginMode;
-  interest: string;
-  interestRate: string;
-  liab: string;
-  ts: string;
-}
-⋮----
-export interface InterestRate {
-  interestRate: string;
-  ccy: string;
-}
-⋮----
-export interface Greeks {
-  greeksType: string;
-}
-⋮----
-export interface MaxWithdrawal {
-  ccy: string;
-  maxWd: string;
-  maxWdEx: string;
-  spotOffsetMaxWd: string;
-  spotOffsetMaxWdEx: string;
-}
-⋮----
-export interface AccountRiskState {
-  atRisk: string;
-  atRiskIdx: string;
-  atRiskMgn: string;
-  ts: string;
-}
-⋮----
-export interface WithdrawalHistory {
-  ccy: string;
-  chain: string;
-  nonTradableAsset: boolean;
-  amt: string;
-  ts: string;
-  from: string;
-  areaCodeFrom: string;
-  to: string;
-  areaCodeTo: string;
-  tag: string;
-  pmtId: string;
-  memo: string;
-  addrExt: any;
-  txId: string;
-  fee: string;
-  feeCcy: string;
-  state: WithdrawState;
-  wdId: string;
-  clientId: string;
-}
-⋮----
-export interface AccountInstrument {
-  baseCcy: string;
-  ctMult: string;
-  ctType: string;
-  ctVal: string;
-  ctValCcy: string;
-  expTime: string;
-  instFamily: string;
-  instId: string;
-  instType: string;
-  seriesId?: string;
-  uly?: string;
-  /**
-   * FUTURES label (deprecated � prefer `expTime`; may include this_five_years, next_five_years, �).
-   */
-  alias?: string;
-  /** Deprecated; see `instCategory` on public `Instrument` where used. */
-  category?: string;
-  lever: string;
-  listTime: string;
-  contTdSwTime: string; // Continuous trading switch time. The switch time from call auction/prequote to continuous trading. Unix timestamp format in milliseconds.
-  preMktSwTime: string; // The time premarket swap switched to normal swap. Unix timestamp format in milliseconds. Only applicable to premarket SWAP.
-  lotSz: string;
-  maxIcebergSz: string;
-  maxLmtAmt: string;
-  maxLmtSz: string;
-  maxMktAmt: string;
-  maxMktSz: string;
-  maxStopSz: string;
-  maxTriggerSz: string;
-  maxTwapSz: string;
-  minSz: string;
-  optType: string;
-  openType: string; // Open type: fix_price (fix price opening), pre_quote (pre-quote), call_auction (call auction). Only applicable to SPOT/MARGIN.
-  quoteCcy: string;
-  tradeQuoteCcyList: string[]; // List of quote currencies available for trading, e.g. ["USD", "USDC"]
-  settleCcy: string;
-  /** Instrument status: live, suspend, rebase (SWAP only), post_only (SWAP only), preopen, test */
-  state: string;
-  stk: string;
-  tickSz: string;
-  /** Trading rule types: normal, pre_market, rebase_contract */
-  ruleType: string;
-  auctionEndTime: string;
-  futureSettlement: boolean; // Whether daily settlement for expiry feature is enabled. Applicable to FUTURES cross.
-  instIdCode: number; // Instrument ID code. For simple binary encoding, must use instIdCode instead of instId.
-  /**
-   * Asset category of the instrument's base asset (see public `Instrument.instCategory` for values).
-   * 1: Crypto, 3: Stocks, 4: Commodities, 5: Forex, 6: Bonds, "": not available
-   */
-  instCategory?: string;
-  posLmtAmt: string; // Maximum position value (USD) for this instrument at the user level. Applicable to SWAP/FUTURES.
-  posLmtPct: string; // Maximum position ratio (e.g., 30 for 30%) a user may hold relative to platform's current total position value. Applicable to SWAP/FUTURES.
-  maxPlatOILmt: string; // Platform-wide maximum position value (USD) for this instrument. Applicable to SWAP/FUTURES.
-  /** Remaining long position value (USD) the user is permitted to open. Applicable to SWAP/FUTURES. */
-  longPosRemainingQuota?: string;
-  /** Remaining short position value (USD) the user is permitted to open. Applicable to SWAP/FUTURES. */
-  shortPosRemainingQuota?: string;
-  groupId?: string; // Instrument trading fee group ID
-  /** ELP maker permission. "0" = not enabled, "1" = enabled but no permission, "2" = enabled with permission */
-  elp?: string;
-  upcChg?: InstrumentUpcomingParamChange[];
-}
-⋮----
-/**
-   * FUTURES label (deprecated � prefer `expTime`; may include this_five_years, next_five_years, �).
-   */
-⋮----
-/** Deprecated; see `instCategory` on public `Instrument` where used. */
-⋮----
-contTdSwTime: string; // Continuous trading switch time. The switch time from call auction/prequote to continuous trading. Unix timestamp format in milliseconds.
-preMktSwTime: string; // The time premarket swap switched to normal swap. Unix timestamp format in milliseconds. Only applicable to premarket SWAP.
-⋮----
-openType: string; // Open type: fix_price (fix price opening), pre_quote (pre-quote), call_auction (call auction). Only applicable to SPOT/MARGIN.
-⋮----
-tradeQuoteCcyList: string[]; // List of quote currencies available for trading, e.g. ["USD", "USDC"]
-⋮----
-/** Instrument status: live, suspend, rebase (SWAP only), post_only (SWAP only), preopen, test */
-⋮----
-/** Trading rule types: normal, pre_market, rebase_contract */
-⋮----
-futureSettlement: boolean; // Whether daily settlement for expiry feature is enabled. Applicable to FUTURES cross.
-instIdCode: number; // Instrument ID code. For simple binary encoding, must use instIdCode instead of instId.
-/**
-   * Asset category of the instrument's base asset (see public `Instrument.instCategory` for values).
-   * 1: Crypto, 3: Stocks, 4: Commodities, 5: Forex, 6: Bonds, "": not available
-   */
-⋮----
-posLmtAmt: string; // Maximum position value (USD) for this instrument at the user level. Applicable to SWAP/FUTURES.
-posLmtPct: string; // Maximum position ratio (e.g., 30 for 30%) a user may hold relative to platform's current total position value. Applicable to SWAP/FUTURES.
-maxPlatOILmt: string; // Platform-wide maximum position value (USD) for this instrument. Applicable to SWAP/FUTURES.
-/** Remaining long position value (USD) the user is permitted to open. Applicable to SWAP/FUTURES. */
-⋮----
-/** Remaining short position value (USD) the user is permitted to open. Applicable to SWAP/FUTURES. */
-⋮----
-groupId?: string; // Instrument trading fee group ID
-/** ELP maker permission. "0" = not enabled, "1" = enabled but no permission, "2" = enabled with permission */
-⋮----
-export interface QuickMarginBorrowRepayResult {
-  instId: string;
-  ccy: string;
-  side: 'borrow' | 'repay';
-  amt: string;
-  posSide: string;
-  ts: string;
-}
-⋮----
-export interface QuickMarginBorrowRepayRecord {
-  instId: string;
-  ccy: string;
-  side: 'borrow' | 'repay';
-  accBorrowed: string;
-  amt: string;
-  refId: string;
-  ts: string;
-}
-⋮----
-export interface VIPInterest {
-  ordId: string;
-  ccy: string;
-  interest: string;
-  interestRate: string;
-  liab: string;
-  ts: string;
-}
-⋮----
-export interface VIPLoanOrder {
-  ts: string;
-  nextRefreshTime: string;
-  ccy: string;
-  ordId: string;
-  state: '1' | '2' | '3' | '4' | '5';
-  origRate: string;
-  curRate: string;
-  dueAmt: string;
-  borrowAmt: string;
-  repayAmt: string;
-}
-⋮----
-export interface VIPLoanOrderDetail {
-  amt: string;
-  ccy: string;
-  failReason: string;
-  rate: string;
-  ts: string;
-  type: '1' | '2' | '3' | '4';
-}
-⋮----
-export interface FixedLoanBorrowingLimitDetail {
-  ccy: string;
-  used: string;
-  borrowed: string;
-  availBorrow: string;
-  minBorrow: string;
-  term: string;
-}
-⋮----
-export interface FixedLoanBorrowingLimit {
-  totalBorrowLmt: string;
-  totalAvailBorrow: string;
-  borrowed: string;
-  used: string;
-  availRepay: string;
-  details: FixedLoanBorrowingLimitDetail[];
-  ts: string;
-}
-⋮----
-export interface FixedLoanBorrowQuote {
-  ccy: string;
-  term: string;
-  estAvailBorrow: string;
-  estRate: string;
-  estInterest: string;
-  penaltyInterest: string;
-  ts: string;
-}
-⋮----
-export interface SetMMPConfigResult {
-  instFamily: string;
-  timeInterval: string;
-  frozenInterval: string;
-  qtyLimit: string;
-}
-⋮----
-export interface MMPConfig {
-  frozenInterval: string;
-  instFamily: string;
-  mmpFrozen: boolean;
-  mmpFrozenUntil: string;
-  qtyLimit: string;
-  timeInterval: string;
-}
-⋮----
-export interface BorrowRepayHistoryItem {
-  ccy: string;
-  type: 'auto_borrow' | 'auto_repay' | 'manual_borrow' | 'manual_repay';
-  amt: string;
-  accBorrowed: string;
-  ts: string;
-}
-⋮----
-export interface SetCollateralAssetsResult {
-  type: 'all' | 'custom';
-  ccyList: string[];
-  collateralEnabled: boolean;
-}
-⋮----
-export interface GetCollateralAssetsResult {
-  ccy: string;
-  collateralEnabled: boolean;
-}
-⋮----
-export interface SetSettleCurrencyResult {
-  settleCcy: string;
-}
-⋮----
-export interface SetFeeTypeResult {
-  feeType: string;
-}
-⋮----
-export interface SetTradingConfigResult {
-  type: string; // Trading config type
-  stgyType: string; // Strategy type
-}
-⋮----
-type: string; // Trading config type
-stgyType: string; // Strategy type
-⋮----
-export interface UnmatchedInfo {
-  type: string; // Unmatched information type: spot_mode, futures_mode, isolated_margin, isolated_contract, positions_options, isolated_pending_orders, pending_orders_options, trading_bot, repay_borrowings, loan, delta_risk, collateral_all, risk_unit_type
-  deltaLever?: string; // Delta leverage. Applicable when type is delta_risk
-  ordList?: string[]; // Unmatched order list, order ID. Applicable when type is isolated_pending_orders/pending_orders_options
-  posList?: string[]; // Unmatched position list, position ID. Applicable when type is isolated_margin/isolated_contract/positions_options
-}
-⋮----
-type: string; // Unmatched information type: spot_mode, futures_mode, isolated_margin, isolated_contract, positions_options, isolated_pending_orders, pending_orders_options, trading_bot, repay_borrowings, loan, delta_risk, collateral_all, risk_unit_type
-deltaLever?: string; // Delta leverage. Applicable when type is delta_risk
-ordList?: string[]; // Unmatched order list, order ID. Applicable when type is isolated_pending_orders/pending_orders_options
-posList?: string[]; // Unmatched position list, position ID. Applicable when type is isolated_margin/isolated_contract/positions_options
-⋮----
-export interface PrecheckSetDeltaNeutralResult {
-  unmatchedInfoCheck: UnmatchedInfo[];
-}
-
-================
 File: src/types/rest/response/public-data.ts
 ================
 import { InstrumentType, numberInString } from '../shared.js';
@@ -7581,6 +7003,35 @@ export interface PublicFundingRate {
   ts: string;
 }
 ⋮----
+/**
+ * @see GET /api/v5/public/insurance-fund (Get security fund)
+ */
+export interface InsuranceFundDetail {
+  ccy?: string;
+  bal?: string;
+  amt?: string;
+  type?: string;
+  maxBal?: string;
+  maxBalTs?: string;
+  decRate?: string;
+  adlType?: string;
+  adlBal?: string;
+  adlRecBal?: string;
+  /** @deprecated Returns "" per 2026-06-09 changelog */
+  adlRate?: string;
+  /** @deprecated Returns "" per 2026-06-09 changelog */
+  adlRecRate?: string;
+}
+⋮----
+/** @deprecated Returns "" per 2026-06-09 changelog */
+⋮----
+/** @deprecated Returns "" per 2026-06-09 changelog */
+⋮----
+export interface InsuranceFund {
+  instType?: string;
+  details: InsuranceFundDetail[];
+}
+⋮----
 export interface FundingRateHistory {
   /** Perpetual (`SWAP`) or X-Perp (`FUTURES`). */
   instType: string;
@@ -7814,615 +7265,6 @@ export interface EventContractMarket {
   settleValue: string;
   disputed: boolean;
 }
-
-================
-File: README.md
-================
-# Node.js & Typescript OKX (OKEX) API & WebSocket SDK
-
-[![E2E Tests](https://github.com/tiagosiebler/okx-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/okx-api/actions/workflows/e2etest.yml)
-[![npm downloads](https://img.shields.io/npm/dt/okx-api)][1]
-[![npm version](https://img.shields.io/npm/v/okx-api)][1]
-[![npm size](https://img.shields.io/bundlephobia/min/okx-api/latest)][1]
-[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/okx-api)][1]
-[![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/okx-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/okx-api)
-
-<p align="center">
-  <a href="https://www.npmjs.com/package/okx-api">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/okx-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
-      <img alt="SDK Logo" src="https://github.com/tiagosiebler/okx-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
-    </picture>
-  </a>
-</p>
-
-[1]: https://www.npmjs.com/package/okx-api
-
-> [!TIP]
-> Upcoming change: As part of the [Siebly.io](https://siebly.io/?ref=ghokx) brand, this SDK will soon be hosted under the [Siebly.io GitHub organisation](https://github.com/sieblyio). The migration is seamless and requires no user changes.
-
-Complete, updated & performant Node.js SDK for the OKX(OKEX) APIs and WebSockets:
-
-- Complete integration with OKX REST APIs, WebSockets & WebSocket APIs.
-- TypeScript support (with type declarations for most API requests & responses).
-- Over 100 end-to-end tests making real API calls & WebSocket connections, validating any changes before they reach npm.
-- Supports all available OKX regions:
-  - OKX Global (www.okx.com), by default.
-  - OKX EEA (my.okx.com), by setting `market: 'EEA'`.
-  - OKX US (app.okx.com), by setting `market: 'US'`.
-- Actively maintained with a modern, promise-driven interface.
-- Robust WebSocket integration
-  - Configurable connection heartbeats (automatically detect failing connections).
-  - Automatic reconnect then resubscribe workflows.
-  - Automatic authentication and heartbeat handling.
-- Supports WebSocket API in all supported regions & product groups:
-  - Use the WebsocketClient's event-driven `sendWSAPIRequest()` method, or;
-  - Use the WebsocketAPIClient for a REST-like experience.
-    - Use the WebSocket API like a REST API!
-    - Automatic routing to business vs private WebSocket endpoints.
-    - End to end types.
-    - See [examples/ws-api-client.ts](./examples/ws-api-client.ts) for a demonstration.
-- Browser support (via webpack bundle - see "Browser Usage" below).
-- QuickStart Guide: https://siebly.io/sdk/okx/javascript
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Issues & Discussion](#issues--discussion)
-- [Related Projects](#related-projects)
-- [Documentation](#documentation)
-- [Contributions & Thanks](#contributions--thanks)
-- [Structure](#structure)
-- [Usage](#usage)
-  - [REST Client](#rest-client)
-    - [Requests & Responses](#requests--responses)
-    - [Example](#example)
-  - [WebSockets](#websockets)
-    - [Sending Orders via WebSockets](#sending-orders-via-websockets)
-    - [Receiving Realtime Data](#receiving-realtime-data)
-    - [Public Events](#public-events)
-    - [Private Events](#private-events)
-- [Browser/Frontend Usage](#browserfrontend-usage)
-  - [Import](#import)
-  - [Webpack](#webpack)
-- [Use with LLMs & AI](#use-with-llms--ai)
-- [Contributions & Pull Requests](#contributions--pull-requests)
-- [Used By](#used-by)
-- [Star History](#star-history)
-
-## Installation
-
-```bash
-npm install okx-api
-```
-
-## Issues & Discussion
-
-- Issues? Check the [issues tab](https://github.com/tiagosiebler/okx-api/issues).
-- Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
-- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
-
-<!-- template_related_projects -->
-
-## Related Projects
-
-Check out our JavaScript/TypeScript/Node.js SDKs & Projects:
-
-- Visit our website: [https://Siebly.io](https://siebly.io/?ref=gh)
-- Try our REST API & WebSocket SDKs published on npmjs:
-  - [Bybit Node.js SDK: bybit-api](https://www.npmjs.com/package/bybit-api)
-  - [Kraken Node.js SDK: @siebly/kraken-api](https://www.npmjs.com/package/@siebly/kraken-api)
-  - [OKX Node.js SDK: okx-api](https://www.npmjs.com/package/okx-api)
-  - [Binance Node.js SDK: binance](https://www.npmjs.com/package/binance)
-  - [Gate (gate.com) Node.js SDK: gateio-api](https://www.npmjs.com/package/gateio-api)
-  - [Bitget Node.js SDK: bitget-api](https://www.npmjs.com/package/bitget-api)
-  - [Kucoin Node.js SDK: kucoin-api](https://www.npmjs.com/package/kucoin-api)
-  - [Coinbase Node.js SDK: coinbase-api](https://www.npmjs.com/package/coinbase-api)
-  - [Bitmart Node.js SDK: bitmart-api](https://www.npmjs.com/package/bitmart-api)
-- Try my misc utilities:
-  - [OrderBooks Node.js: orderbooks](https://www.npmjs.com/package/orderbooks)
-  - [Crypto Exchange Account State Cache: accountstate](https://www.npmjs.com/package/accountstate)
-- Check out my examples:
-  - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
-  <!-- template_related_projects_end -->
-
-## Documentation
-
-Most methods accept JS objects. These can be populated using parameters specified by okx's API documentation, or check the type definition in the rest-client class methods.
-
-- [RestClient](src/rest-client.ts)
-- [OKX API Documentation](https://www.okx.com/docs-v5/en/#rest-api)
-- [REST Endpoint Function List](./docs/endpointFunctionList.md)
-
-## Contributions & Thanks
-
-Support my efforts to make algo trading accessible to all - register with my referral links:
-
-- [Bybit](https://www.bybit.com/en-US/register?affiliate_id=9410&language=en-US&group_id=0&group_type=1)
-- [Binance](https://www.binance.com/en/register?ref=20983262)
-- [OKX](https://www.okx.com/join/18504944)
-
-For more ways to give thanks & support my efforts, visit [Contributions & Thanks](https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Contributions-&-Thanks)!
-
-## Structure
-
-This project uses typescript. Resources are stored in 3 key structures:
-
-- [src](./src) - the whole connector written in typescript
-- [lib](./lib) - the javascript version of the project (compiled from typescript). This should not be edited directly, as it will be overwritten with each release. This is also the version published to npm.
-- [dist](./dist) - the packed bundle of the project for use in browser environments (manual, using webpack).
-- [examples](./examples) - some implementation examples & demonstrations. Contributions are welcome!
-
----
-
-## Usage
-
-Create API credentials at okx
-
-- [OKX/account/API](https://www.okx.com/account/my-api)
-
-## REST Client
-
-### Requests & Responses
-
-- If your IDE doesn't have IntelliSense, check the [rest-client.ts](./src/rest-client.ts) for a list of methods, params & return types.
-- Requests follow the same ordering and format as the categories in the [API docs](https://www.okx.com/docs-v5/en/#rest-api).
-- Responses are parsed automatically for less nesting. Error responses are thrown in full:
-  - If the response looks successful (HTTP 200 and "code" in the response body === "0"), only the `data` property is directly (without the `code`, `data` & `msg` properties).
-  - If the response looks like an error (HTTP error OR the "code" property in the response does not equal "0"), the full response is thrown (including `code` and `msg` properties). See the interface for [APIResponse<T>](./src/types/rest/shared.ts).
-
-### Example
-
-```ts
-import { RestClient } from 'okx-api';
-
-const client = new RestClient({
-  apiKey: 'apiKeyHere',
-  apiSecret: 'apiSecretHere',
-  apiPass: 'apiPassHere',
-  // For Global users (www.okx.com), you don't need to set the market.
-  // It will use global by default.
-  // Not needed: market: 'GLOBAL',
-
-  // For EEA users (my.okx.com), set market to "EEA":
-  // market: 'EEA',
-
-  // For US users (app.okx.com), set market to "US":
-  // market: 'US',
-});
-
-// Submit a buy and sell market order
-(async () => {
-  try {
-    const allBalances = await client.getBalance();
-    console.log('All balances: ', allBalances);
-
-    const buyResult = await client.submitOrder({
-      instId: 'BTC-USDT',
-      ordType: 'market',
-      side: 'buy',
-      sz: '0.1',
-      tdMode: 'cash',
-      tgtCcy: 'base_ccy',
-    });
-    console.log('buy order result: ', buyResult);
-
-    const sellResult = await client.submitOrder({
-      instId: 'BTC-USDT',
-      ordType: 'market',
-      side: 'sell',
-      sz: '0.1',
-      tdMode: 'cash',
-      tgtCcy: 'base_ccy',
-    });
-    console.log('Sell order result: ', sellResult);
-  } catch (e) {
-    console.error('request failed: ', e);
-  }
-})();
-```
-
-## WebSockets
-
-This connector includes a high-performance Node.js, TypeScript & JavaScript WebSocket client for the OKX public & private WebSocket, including the OKX WebSocket API for order placement. API credentials are optional unless private streams will be used (such as account order updates).
-
-- If your IDE doesn't have IntelliSense, check the [websocket-client.ts](./src/websocket-client.ts) for a list of methods, params & return types.
-- When subscribing to channels, only the "args" should be passed as an object or array when calling the websocket client subcribe() function: [API docs](https://www.okx.com/docs-v5/en/#websocket-api-subscribe).
-- TypeScript recommended (but it is not required) for a richer experience:
-  ![typescript-subscribe](./docs/images/subscribe-with-typescript.gif)
-- The ws client will automatically open connections as needed when subscribing to a channel.
-- If the connection is lost for any reason, the ws client will detect this (via the connection heartbeats). It will then:
-  - Automatically teardown the dead connection.
-  - Automatically respawn a fresh connection.
-  - Automatically reauthenticate, if using private channels.
-  - Automatically resubscribe to previously subscribed topics.
-  - Resume producing events as before, without extra handling needed in your logic.
-- The ws client will automatically authenticate if accounts are provided and a private channel is subscribed to.
-- Up to 100 accounts are supported on the private connection, as per the [API docs](https://www.okx.com/docs-v5/en/#websocket-api-login). Authentication is automatic if accounts are provided.
-- For examples in using the websocket client, check the examples in the repo:
-  - Private channels (account data): [examples/ws-private.ts](./examples/ws-private.ts)
-  - Public chanels (market data): [examples/ws-public.ts](./examples/ws-public.ts)
-  - These examples are written in TypeScript, so can be executed with ts-node for easy testing:
-    `ts-node examples/ws-private.ts`
-  - Or convert them to javascript:
-    - Change the `import { ... } from 'okx-api'` to `const { ... } = require('okx-api');`
-    - Rename the file to `ws-private.js`
-    - And execute with node: `node examples/ws-private.js`
-
-### Sending orders via WebSockets
-
-OKX supports some order management capabilities via a persisted WebSocket connection. This SDK supports this with two convenient approaches.
-
-The recommended route is to use the dedicated WebsocketAPIClient class, included with this SDK:
-
-- Dedicated functions for every available WebSocket API operation
-- Fully typed requests and responses
-- Asynchronous promisified wrapper around WS API commands.
-
-It looks & feels like a REST API client, but uses WebSockets, via the WebsocketClient's sendWSAPIRequest method (which you can use directly if you prefer).
-
-A simple example is below but for a more thorough example, check the example here: [./examples/ws-api-client.ts](./examples/ws-api-client.ts).
-
-```typescript
-import { WebsocketAPIClient } from 'okx-api';
-// or if you prefer require:
-// const { WebsocketAPIClient } = require("okx-api");
-
-// For private events, all 3 of the following are required (per account):
-const API_KEY = process.env.API_KEY_COM;
-const API_SECRET = process.env.API_SECRET_COM;
-const API_PASSPHRASE = process.env.API_PASSPHRASE_COM;
-
-// If running from CLI in unix, you can pass env vars as such:
-// API_KEY_COM='lkm12n3-2ba3-1mxf-fn13-lkm12n3a' API_SECRET_COM='035B2B9637E1BDFFEE2646BFBDDB8CE4' API_PASSPHRASE_COM='ComplexPa$$!23$5^' ts-node examples/ws-private.ts
-
-const wsClient = new WebsocketAPIClient({
-  // For Global users (www.okx.com), you don't need to set the market.
-  // It will use global by default.
-  // Not needed: market: 'GLOBAL',
-
-  // For EEA users (my.okx.com), set market to "EEA":
-  // market: 'EEA',
-
-  // For US users (app.okx.com), set market to "US":
-  // market: 'US',
-
-  accounts: [
-    {
-      apiKey: API_KEY,
-      apiSecret: API_SECRET,
-      apiPass: API_PASSPHRASE,
-    },
-  ],
-});
-
-async function start() {
-  // Optional: prepare the WebSocket API connection in advance.
-  // This happens automatically but you can do this early before making any API calls, to prevent delays from a cold start.
-  // await wsClient.connectWSAPI();
-
-  /**
-   * OKX's WebSocket API be used like a REST API, through this SDK's WebsocketAPIClient. The WebsocketAPIClient is a utility class wrapped around WebsocketClient's sendWSAPIRequest() capabilities.
-   *
-   * Each request sent via the WebsocketAPIClient will automatically:
-   * - route via the active WS API connection
-   * - return a Promise, which automatically resolves/rejects when a matching response is received
-   */
-
-  /**
-   * Place Order
-   * https://www.okx.com/docs-v5/en/#order-book-trading-trade-ws-place-order
-   */
-  try {
-    const res = await wsClient.submitNewOrder({
-      instId: 'BTC-USDT',
-      tdMode: 'cash',
-      side: 'buy',
-      ordType: 'market',
-      sz: '100',
-    });
-    /**
-      const res = {
-        id: '2',
-        op: 'order',
-        code: '1',
-        msg: '',
-        data: [
-          {
-            tag: '159881cb7207BCDE',
-            ts: '1753714603721',
-            ordId: '',
-            clOrdId: '',
-            sCode: '51008',
-            sMsg: 'Order failed. Insufficient USDT balance in account.'
-          }
-        ],
-        inTime: '1753714603720755',
-        outTime: '1753714603721942',
-        wsKey: 'prodPrivate',
-        isWSAPIResponse: false
-      }
-
-      const res =  {
-        id: '2',
-        op: 'order',
-        code: '1',
-        msg: '',
-        data: [
-          {
-            tag: '159881cb7207BCDE',
-            ts: '1753714567149',
-            ordId: '',
-            clOrdId: '',
-            sCode: '51010',
-            sMsg: "You can't complete this request under your current account mode."
-          }
-        ],
-        inTime: '1753714567149196',
-        outTime: '1753714567149913',
-        wsKey: 'prodPrivate',
-        isWSAPIResponse: false
-      }
-     */
-
-    console.log(new Date(), 'WS API "submitNewOrder()" result: ', res);
-  } catch (e) {
-    console.error(new Date(), 'Exception with WS API "submitNewOrder()": ', e);
-  }
-
-  /**
-   * Submit multiple orders in a batch
-   * https://www.okx.com/docs-v5/en/#order-book-trading-trade-ws-place-multiple-orders
-   */
-  try {
-    const res = await wsClient.submitMultipleOrders([
-      {
-        instId: 'BTC-USDT',
-        tdMode: 'cash',
-        side: 'buy',
-        ordType: 'market',
-        sz: '100',
-      },
-      {
-        instId: 'BTC-USDT',
-        tdMode: 'cash',
-        side: 'buy',
-        ordType: 'market',
-        sz: '50',
-      },
-    ]);
-    console.log(new Date(), 'WS API "submitMultipleOrders()" result: ', res);
-  } catch (e) {
-    console.error(
-      new Date(),
-      'Exception with WS API "submitMultipleOrders()": ',
-      e,
-    );
-  }
-}
-
-start();
-```
-
-### Receiving realtime data
-
-The below example demonstrates connecting as a consumer, to receive WebSocket events from OKX, using the included WebsocketClient:
-
-```javascript
-import { WebsocketClient } from 'okx-api';
-// or if you prefer require:
-// const { WebsocketClient } = require("okx-api");
-
-// For private events, all 3 of the following are required (per account):
-const API_KEY = process.env.API_KEY_COM;
-const API_SECRET = process.env.API_SECRET_COM;
-const API_PASSPHRASE = process.env.API_PASSPHRASE_COM;
-
-// If running from CLI in unix, you can pass env vars as such:
-// API_KEY_COM='lkm12n3-2ba3-1mxf-fn13-lkm12n3a' API_SECRET_COM='035B2B9637E1BDFFEE2646BFBDDB8CE4' API_PASSPHRASE_COM='ComplexPa$$!23$5^' ts-node examples/ws-private.ts
-
-// Note the single quotes, preventing special characters such as $ from being incorrectly passed
-
-const wsClient = new WebsocketClient({
-  // For Global users (www.okx.com), you don't need to set the market.
-  // It will use global by default.
-  // Not needed: market: 'GLOBAL',
-
-  // For EEA users (my.okx.com), set market to "EEA":
-  // market: 'EEA',
-
-  // For US users (app.okx.com), set market to "US":
-  // market: 'US',
-
-  accounts: [
-    // For private topics, include one or more accounts in an array. Otherwise only public topics will work
-    {
-      apiKey: API_KEY,
-      apiSecret: API_SECRET,
-      apiPass: API_PASSPHRASE,
-    },
-    // {
-    //   apiKey: 'yourApiKeyHere',
-    //   apiSecret: 'yourApiSecretHere',
-    //   apiPass: 'yourApiPassHere',
-    // },
-    // {
-    //   apiKey: 'anotherAccountKey',
-    //   apiSecret: 'anotherAccountSecret',
-    //   apiPass: 'anotherAccountPass',
-    // },
-  ],
-});
-
-// Raw data will arrive on the 'update' event
-wsClient.on('update', (data) => {
-  console.log('ws update (raw data received)', JSON.stringify(data));
-});
-
-wsClient.on('open', (data) => {
-  console.log('connection opened open:', data.wsKey);
-});
-
-// Replies (e.g. authenticating or subscribing to channels) will arrive on the 'response' event
-wsClient.on('response', (data) => {
-  // console.log('ws response: ', JSON.stringify(data, null, 2));
-  console.log('ws response: ', JSON.stringify(data));
-});
-
-wsClient.on('reconnect', ({ wsKey }) => {
-  console.log('ws automatically reconnecting.... ', wsKey);
-});
-wsClient.on('reconnected', (data) => {
-  console.log('ws has reconnected ', data?.wsKey);
-});
-wsClient.on('exception', (data) => {
-  console.error('ws exception: ', data);
-});
-
-/**
- * Simply call subscribe to request the channels that you're interested in.
- *
- * If authentication is required, the WSClient will automatically authenticate with the available credentials.
- */
-
-// Subscribe one event at a time:
-wsClient.subscribe({
-  channel: 'account',
-});
-
-// OR, combine multiple subscription events into one request using an array instead of an object:
-wsClient.subscribe([
-  {
-    channel: 'account',
-  },
-  {
-    channel: 'positions',
-    instType: 'ANY',
-  },
-]);
-
-// Public topics, for comparison. These do not require authentication / api keys:
-wsClient.subscribe([
-  {
-    channel: 'instruments',
-    instType: 'SPOT',
-  },
-  {
-    channel: 'instruments',
-    instType: 'FUTURES',
-  },
-  {
-    channel: 'tickers',
-    instId: 'LTC-BTC',
-  },
-]);
-```
-
-#### Public Events
-
-See [examples/ws-public.ts](./examples/ws-public.ts) for a full example:
-
-![typescript-events-public](./docs/images/subscribe-events-public.gif)
-
-#### Private Events
-
-See [examples/ws-private.ts](./examples/ws-private.ts) for a full example:
-
-![typescript-events](./docs/images/subscribe-events.gif)
-
-## Browser/Frontend Usage
-
-### Import
-
-This is the "modern" way, allowing the package to be directly imported into frontend projects with full typescript support.
-
-1. Install these dependencies
-   ```sh
-   npm install crypto-browserify stream-browserify
-   ```
-2. Add this to your `tsconfig.json`
-   ```json
-   {
-     "compilerOptions": {
-       "paths": {
-         "crypto": [
-           "./node_modules/crypto-browserify"
-         ],
-         "stream": [
-           "./node_modules/stream-browserify"
-         ]
-   }
-   ```
-3. Declare this in the global context of your application (ex: in polyfills for angular)
-   ```js
-   (window as any).global = window;
-   ```
-
-### Webpack
-
-This is the "old" way of using this package on webpages. This will build a minified js bundle that can be pulled in using a script tag on a website.
-
-Build a bundle using webpack:
-
-- `npm install`
-- `npm build`
-- `npm pack`
-
-The bundle can be found in `dist/`. Altough usage should be largely consistent, smaller differences will exist. Documentation is still TODO.
-
-## Use with LLMs & AI
-
-This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
-
-This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
-
----
-
-<!-- template_contributions -->
-
-### Contributions & Thanks
-
-Have my projects helped you? Share the love, there are many ways you can show your thanks:
-
-- Star & share my projects.
-- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
-- Have an interesting project? Get in touch & invite me to it.
-- Or buy me all the coffee:
-  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
-- Sign up with my referral links:
-  - OKX (receive a 20% fee discount!): https://www.okx.com/join/42013004
-  - Binance (receive a 20% fee discount!): https://accounts.binance.com/register?ref=OKFFGIJJ
-  - HyperLiquid (receive a 4% fee discount!): https://app.hyperliquid.xyz/join/SDK
-  - Gate: https://www.gate.io/signup/NODESDKS?ref_type=103
-
-<!---
-old ones:
-  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
-  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
-  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
-  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
-  - gate: https://www.gate.io/signup/AVNNU1WK?ref_type=103
-
--->
-<!-- template_contributions_end -->
-
-## Contributions & Pull Requests
-
-Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
-
-## Used By
-
-The following represents some of the known public projects that use this SDK on GitHub:
-
-[![Repository Users Preview Image](https://dependents.info/tiagosiebler/okx-api/image)](https://github.com/tiagosiebler/okx-api/network/dependents)
-
-<!-- template_star_history -->
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
-
-<!-- template_star_history_end -->
 
 ================
 File: src/types/rest/request/trade.ts
@@ -8788,6 +7630,710 @@ export interface OrderPrecheckRequest {
 /** EVENTS: `yes` / `no`. */
 
 ================
+File: src/types/rest/response/private-account.ts
+================
+import {
+  AccountLevel,
+  MarginMode,
+  PositionSide,
+  WithdrawState,
+} from '../shared.js';
+import type { InstrumentUpcomingParamChange } from './public-data.js';
+⋮----
+export interface AccountBalanceDetail {
+  availBal: string;
+  availEq: string;
+  cashBal: string;
+  ccy: string;
+  crossLiab: string;
+  disEq: string;
+  eq: string;
+  eqUsd: string;
+  frozenBal: string;
+  interest: string;
+  isoEq: string;
+  isoLiab: string;
+  isoUpl: string;
+  liab: string;
+  maxLoan: string;
+  mgnRatio: string;
+  notionalLever: string;
+  ordFrozen: string;
+  twap: string;
+  uTime: string;
+  upl: string;
+  uplLiab: string;
+  stgyEq: string;
+  spotBal: string; // Spot balance. The unit is currency, e.g. BTC.
+  openAvgPx: string[]; // Spot average cost price. The unit is USD.
+  accAvgPx: string[]; // Spot accumulated cost price. The unit is USD.
+  spotUpl: string; // Spot unrealized profit and loss. The unit is USD.
+  spotUplRatio: string; // Spot unrealized profit and loss ratio.
+  totalPnl: string; // Spot accumulated profit and loss. The unit is USD.
+  totalPnlRatio: string; // Spot accumulated profit and loss ratio.
+}
+⋮----
+spotBal: string; // Spot balance. The unit is currency, e.g. BTC.
+openAvgPx: string[]; // Spot average cost price. The unit is USD.
+accAvgPx: string[]; // Spot accumulated cost price. The unit is USD.
+spotUpl: string; // Spot unrealized profit and loss. The unit is USD.
+spotUplRatio: string; // Spot unrealized profit and loss ratio.
+totalPnl: string; // Spot accumulated profit and loss. The unit is USD.
+totalPnlRatio: string; // Spot accumulated profit and loss ratio.
+⋮----
+export interface AccountBalance {
+  adjEq: string;
+  details: AccountBalanceDetail[];
+  imr: string;
+  isoEq: string;
+  mgnRatio: string;
+  mmr: string;
+  notionalUsd: string;
+  notionalUsdForBorrow: string;
+  notionalUsdForFutures: string;
+  notionalUsdForOption: string;
+  notionalUsdForSwap: string;
+  ordFroz: string;
+  totalEq: string;
+  uTime: string;
+  spotCopyTradingEq: string;
+  upl: string;
+  frpType?: string;
+  // Delta neutral strategy fields
+  delta: string; // Delta (USD)
+  deltaLever: string; // Delta neutral strategy account level delta leverage (deltaLever = delta / totalEq)
+  deltaNeutralStatus: string; // Delta risk status: 0=normal, 1=transfer restricted, 2=delta reducing
+}
+⋮----
+// Delta neutral strategy fields
+delta: string; // Delta (USD)
+deltaLever: string; // Delta neutral strategy account level delta leverage (deltaLever = delta / totalEq)
+deltaNeutralStatus: string; // Delta risk status: 0=normal, 1=transfer restricted, 2=delta reducing
+⋮----
+export interface AccountPosition {
+  adl: string;
+  availPos: string;
+  avgPx: string;
+  cTime: string;
+  ccy: string;
+  deltaBS: string;
+  deltaPA: string;
+  gammaBS: string;
+  gammaPA: string;
+  imr: string;
+  instId: string;
+  instType: string;
+  interest: string;
+  usdPx: string;
+  last: string;
+  lever: string;
+  liab: string;
+  liabCcy: string;
+  liqPx: string;
+  markPx: string;
+  margin: string;
+  mgnMode: MarginMode;
+  mgnRatio: string;
+  mmr: string;
+  notionalUsd: string;
+  optVal: string;
+  pTime: string;
+  pos: string;
+  hedgedPos: string; // Hedged position size. Only returned for accounts in delta neutral strategy (stgyType:1). Returns "" for accounts in general strategy.
+  posCcy: string;
+  posId: string;
+  posSide: PositionSide;
+  thetaBS: string;
+  thetaPA: string;
+  tradeId: string;
+  uTime: string;
+  upl: string;
+  uplRatio: string;
+  vegaBS: string;
+  vegaPA: string;
+}
+⋮----
+hedgedPos: string; // Hedged position size. Only returned for accounts in delta neutral strategy (stgyType:1). Returns "" for accounts in general strategy.
+⋮----
+export interface HistoricAccountPosition {
+  cTime: string;
+  ccy: string;
+  closeAvgPx: string;
+  closeTotalPos: string;
+  instId: string;
+  instType: string;
+  lever: string;
+  mgnMode: MarginMode;
+  openAvgPx: string;
+  openMaxPos: string;
+  pnl: string;
+  pnlRatio: string;
+  posId: string;
+  posSide: PositionSide;
+  triggerPx: string;
+  type: string;
+  uTime: string;
+  uly: string;
+}
+⋮----
+export interface AccountBalanceRiskData {
+  ccy: string;
+  disEq: string;
+  eq: string;
+}
+⋮----
+export interface AccountPositionRiskData {
+  baseBal: string;
+  ccy: string;
+  instId: string;
+  instType: string;
+  mgnMode: MarginMode;
+  notionalCcy: string;
+  notionalUsd: string;
+  pos: string;
+  posCcy: string;
+  posId: string;
+  posSide: PositionSide;
+  quoteBal: string;
+}
+⋮----
+export interface AccountPositionRisk {
+  adjEq: string;
+  balData: AccountBalanceRiskData[];
+  posData: AccountPositionRiskData[];
+  ts: string;
+}
+⋮----
+export interface AccountBill {
+  bal: string;
+  balChg: string;
+  billId: string;
+  ccy: string;
+  execType: string;
+  fee: string;
+  from: string;
+  instId: string;
+  instType: string;
+  mgnMode: MarginMode;
+  notes: string;
+  ordId: string;
+  pnl: string;
+  posBal: string;
+  posBalChg: string;
+  subType: string;
+  sz: string;
+  to: string;
+  ts: string;
+  type: string;
+  earnAmt?: string;
+  earnApr?: string;
+}
+⋮----
+export interface BillSubTypeDetail {
+  subType: string;
+  subTypeDesc: string;
+}
+⋮----
+/**
+ * @see GET /api/v5/account/subtypes
+ */
+export interface AccountBillTypeDefinition {
+  type: string;
+  typeDesc: string;
+  subTypeDetails: BillSubTypeDetail[];
+}
+⋮----
+/**
+ * Apply (POST) may return { result, ts }; get link (GET) may return { fileHref, state, ts }.
+ */
+export interface AccountHistoryBill {
+  fileHref?: string;
+  result?: string;
+  state?: 'finished' | 'ongoing' | 'failed' | string;
+  ts: string;
+}
+⋮----
+export interface AccountConfiguration {
+  acctLv: string;
+  autoLoan: boolean;
+  ctIsoMode: string;
+  greeksType: string;
+  level: string;
+  levelTmp: string;
+  mgnIsoMode: string;
+  posMode: string;
+  spotOffsetType: string;
+  stgyType: string; // Strategy type: 0=general strategy, 1=delta neutral strategy
+  uid: string;
+  label: string;
+  roleType: string;
+  traderInsts: any[];
+  spotRoleType: string;
+  spotTraderInsts: any[];
+  opAuth: string;
+  kycLv: string;
+  ip: string;
+  perm: string;
+  mainUid: string;
+  discountType: '0' | '1';
+  enableSpotBorrow: boolean;
+  spotBorrowAutoRepay: boolean;
+  feeType: string;
+  settleCcy: string;
+  settleCcyList: string[];
+}
+⋮----
+stgyType: string; // Strategy type: 0=general strategy, 1=delta neutral strategy
+⋮----
+export interface AccountPositionModeResult {
+  posMode: string;
+}
+⋮----
+export interface AccountModeResult {
+  acctLv: AccountLevel;
+}
+⋮----
+export interface AutoLoanResult {
+  autoLoan: boolean;
+}
+⋮----
+export interface AccountLeverageResult {
+  lever: string;
+  mgnMode: MarginMode;
+  instId: string;
+  posSide: PositionSide;
+}
+⋮----
+export interface AccountMaxOrderAmount {
+  ccy: string;
+  instId: string;
+  maxBuy: string;
+  maxSell: string;
+}
+⋮----
+export interface AccountMaxTradableAmount {
+  instId: string;
+  availBuy: string;
+  availSell: string;
+}
+⋮----
+export interface AccountChangeMarginResult {
+  amt: string;
+  ccy: string;
+  instId: string;
+  leverage: string;
+  posSide: PositionSide;
+  type: string;
+}
+⋮----
+export interface AccountLeverage {
+  instId: string;
+  mgnMode: MarginMode;
+  posSide: PositionSide;
+  lever: string;
+}
+⋮----
+export interface AccountMaxLoan {
+  instId: string;
+  mgnMode: MarginMode;
+  mgnCcy: string;
+  maxLoan: string;
+  ccy: string;
+  side: string;
+}
+⋮----
+export interface FeeGroup {
+  taker: string;
+  maker: string;
+  groupId: string;
+  /** ELP Maker effective fee rate. Returns "" if ELP is not applicable to the instrument. @see 2026-05-20 changelog */
+  elpMaker?: string;
+}
+⋮----
+/** ELP Maker effective fee rate. Returns "" if ELP is not applicable to the instrument. @see 2026-05-20 changelog */
+⋮----
+export interface AccountFeeRate {
+  category: never;
+  delivery: string;
+  exercise: string;
+  instType: string;
+  level: string;
+  maker: string;
+  makerU: string;
+  taker: string;
+  takerU: string;
+  settle?: string;
+  ts: string;
+  ruleType: string;
+  feeGroup?: FeeGroup[]; // Fee groups. Applicable to SPOT/MARGIN/SWAP/FUTURES/OPTION
+}
+⋮----
+feeGroup?: FeeGroup[]; // Fee groups. Applicable to SPOT/MARGIN/SWAP/FUTURES/OPTION
+⋮----
+export interface AccountIsolatedMode {
+  isoMode: 'autonomy' | 'automatic';
+}
+⋮----
+export interface AdjustLeverageInfo {
+  estAvailQuoteTrans: string;
+  estAvailTrans: string;
+  estLiqPx: string;
+  estMgn: string;
+  estQuoteMgn: string;
+  estMaxAmt: string;
+  estQuoteMaxAmt: string;
+  existOrd: boolean;
+  maxLever: string;
+  minLever: string;
+}
+⋮----
+export interface InterestAccrued {
+  type: '1' | '2';
+  ccy: string;
+  instId: string;
+  mgnMode: MarginMode;
+  interest: string;
+  interestRate: string;
+  liab: string;
+  ts: string;
+}
+⋮----
+export interface InterestRate {
+  interestRate: string;
+  ccy: string;
+}
+⋮----
+export interface Greeks {
+  greeksType: string;
+}
+⋮----
+export interface MaxWithdrawal {
+  ccy: string;
+  maxWd: string;
+  maxWdEx: string;
+  spotOffsetMaxWd: string;
+  spotOffsetMaxWdEx: string;
+}
+⋮----
+export interface AccountRiskState {
+  atRisk: string;
+  atRiskIdx: string;
+  atRiskMgn: string;
+  ts: string;
+}
+⋮----
+export interface WithdrawalHistory {
+  ccy: string;
+  chain: string;
+  nonTradableAsset: boolean;
+  amt: string;
+  ts: string;
+  from: string;
+  areaCodeFrom: string;
+  to: string;
+  areaCodeTo: string;
+  tag: string;
+  pmtId: string;
+  memo: string;
+  addrExt: any;
+  txId: string;
+  fee: string;
+  feeCcy: string;
+  state: WithdrawState;
+  wdId: string;
+  clientId: string;
+}
+⋮----
+export interface AccountInstrument {
+  baseCcy: string;
+  ctMult: string;
+  ctType: string;
+  ctVal: string;
+  ctValCcy: string;
+  expTime: string;
+  instFamily: string;
+  instId: string;
+  instType: string;
+  seriesId?: string;
+  uly?: string;
+  /**
+   * FUTURES label (deprecated: prefer `expTime`; may include this_five_years, next_five_years, ...).
+   */
+  alias?: string;
+  /** Deprecated; see `instCategory` on public `Instrument` where used. */
+  category?: string;
+  lever: string;
+  listTime: string;
+  contTdSwTime: string; // Continuous trading switch time. The switch time from call auction/prequote to continuous trading. Unix timestamp format in milliseconds.
+  preMktSwTime: string; // The time premarket swap switched to normal swap. Unix timestamp format in milliseconds. Only applicable to premarket SWAP.
+  lotSz: string;
+  maxIcebergSz: string;
+  maxLmtAmt: string;
+  maxLmtSz: string;
+  maxMktAmt: string;
+  maxMktSz: string;
+  maxStopSz: string;
+  maxTriggerSz: string;
+  maxTwapSz: string;
+  minSz: string;
+  optType: string;
+  openType: string; // Open type: fix_price (fix price opening), pre_quote (pre-quote), call_auction (call auction). Only applicable to SPOT/MARGIN.
+  quoteCcy: string;
+  tradeQuoteCcyList: string[]; // List of quote currencies available for trading, e.g. ["USD", "USDC"]
+  settleCcy: string;
+  /** Instrument status: live, suspend, rebase (SWAP only), post_only (SWAP only), preopen, test */
+  state: string;
+  stk: string;
+  tickSz: string;
+  /** Trading rule types: normal, pre_market, rebase_contract */
+  ruleType: string;
+  auctionEndTime: string;
+  futureSettlement: boolean; // Whether daily settlement for expiry feature is enabled. Applicable to FUTURES cross.
+  instIdCode: number; // Instrument ID code. For simple binary encoding, must use instIdCode instead of instId.
+  /**
+   * Asset category of the instrument's base asset (see public `Instrument.instCategory` for values).
+   * 1: Crypto, 3: Stocks, 4: Commodities, 5: Forex, 6: Bonds, "": not available
+   */
+  instCategory?: string;
+  posLmtAmt: string; // Maximum position value (USD) for this instrument at the user level. Applicable to SWAP/FUTURES.
+  posLmtPct: string; // Maximum position ratio (e.g., 30 for 30%) a user may hold relative to platform's current total position value. Applicable to SWAP/FUTURES.
+  maxPlatOILmt: string; // Platform-wide maximum position value (USD) for this instrument. Applicable to SWAP/FUTURES.
+  /** Platform-wide maximum position value (coins) for this instrument. Applicable to SWAP/FUTURES. @see 2026-05-19 changelog */
+  maxPlatOICoinLmt?: string;
+  /** Remaining long position value (USD) the user is permitted to open. Applicable to SWAP/FUTURES. */
+  longPosRemainingQuota?: string;
+  /** Remaining short position value (USD) the user is permitted to open. Applicable to SWAP/FUTURES. */
+  shortPosRemainingQuota?: string;
+  groupId?: string; // Instrument trading fee group ID
+  /** ELP maker permission. "0" = not enabled, "1" = enabled but no permission, "2" = enabled with permission */
+  elp?: string;
+  upcChg?: InstrumentUpcomingParamChange[];
+}
+⋮----
+/**
+   * FUTURES label (deprecated: prefer `expTime`; may include this_five_years, next_five_years, ...).
+   */
+⋮----
+/** Deprecated; see `instCategory` on public `Instrument` where used. */
+⋮----
+contTdSwTime: string; // Continuous trading switch time. The switch time from call auction/prequote to continuous trading. Unix timestamp format in milliseconds.
+preMktSwTime: string; // The time premarket swap switched to normal swap. Unix timestamp format in milliseconds. Only applicable to premarket SWAP.
+⋮----
+openType: string; // Open type: fix_price (fix price opening), pre_quote (pre-quote), call_auction (call auction). Only applicable to SPOT/MARGIN.
+⋮----
+tradeQuoteCcyList: string[]; // List of quote currencies available for trading, e.g. ["USD", "USDC"]
+⋮----
+/** Instrument status: live, suspend, rebase (SWAP only), post_only (SWAP only), preopen, test */
+⋮----
+/** Trading rule types: normal, pre_market, rebase_contract */
+⋮----
+futureSettlement: boolean; // Whether daily settlement for expiry feature is enabled. Applicable to FUTURES cross.
+instIdCode: number; // Instrument ID code. For simple binary encoding, must use instIdCode instead of instId.
+/**
+   * Asset category of the instrument's base asset (see public `Instrument.instCategory` for values).
+   * 1: Crypto, 3: Stocks, 4: Commodities, 5: Forex, 6: Bonds, "": not available
+   */
+⋮----
+posLmtAmt: string; // Maximum position value (USD) for this instrument at the user level. Applicable to SWAP/FUTURES.
+posLmtPct: string; // Maximum position ratio (e.g., 30 for 30%) a user may hold relative to platform's current total position value. Applicable to SWAP/FUTURES.
+maxPlatOILmt: string; // Platform-wide maximum position value (USD) for this instrument. Applicable to SWAP/FUTURES.
+/** Platform-wide maximum position value (coins) for this instrument. Applicable to SWAP/FUTURES. @see 2026-05-19 changelog */
+⋮----
+/** Remaining long position value (USD) the user is permitted to open. Applicable to SWAP/FUTURES. */
+⋮----
+/** Remaining short position value (USD) the user is permitted to open. Applicable to SWAP/FUTURES. */
+⋮----
+groupId?: string; // Instrument trading fee group ID
+/** ELP maker permission. "0" = not enabled, "1" = enabled but no permission, "2" = enabled with permission */
+⋮----
+export interface QuickMarginBorrowRepayResult {
+  instId: string;
+  ccy: string;
+  side: 'borrow' | 'repay';
+  amt: string;
+  posSide: string;
+  ts: string;
+}
+⋮----
+export interface QuickMarginBorrowRepayRecord {
+  instId: string;
+  ccy: string;
+  side: 'borrow' | 'repay';
+  accBorrowed: string;
+  amt: string;
+  refId: string;
+  ts: string;
+}
+⋮----
+export interface VIPInterest {
+  ordId: string;
+  ccy: string;
+  interest: string;
+  interestRate: string;
+  liab: string;
+  ts: string;
+}
+⋮----
+export interface VIPLoanOrder {
+  ts: string;
+  nextRefreshTime: string;
+  ccy: string;
+  ordId: string;
+  state: '1' | '2' | '3' | '4' | '5';
+  origRate: string;
+  curRate: string;
+  dueAmt: string;
+  borrowAmt: string;
+  repayAmt: string;
+}
+⋮----
+export interface VIPLoanOrderDetail {
+  amt: string;
+  ccy: string;
+  failReason: string;
+  rate: string;
+  ts: string;
+  type: '1' | '2' | '3' | '4';
+}
+⋮----
+export interface FixedLoanBorrowingLimitDetail {
+  ccy: string;
+  used: string;
+  borrowed: string;
+  availBorrow: string;
+  minBorrow: string;
+  term: string;
+}
+⋮----
+export interface FixedLoanBorrowingLimit {
+  totalBorrowLmt: string;
+  totalAvailBorrow: string;
+  borrowed: string;
+  used: string;
+  availRepay: string;
+  details: FixedLoanBorrowingLimitDetail[];
+  ts: string;
+}
+⋮----
+export interface FixedLoanBorrowQuote {
+  ccy: string;
+  term: string;
+  estAvailBorrow: string;
+  estRate: string;
+  estInterest: string;
+  penaltyInterest: string;
+  ts: string;
+}
+⋮----
+export interface SetMMPConfigResult {
+  instFamily: string;
+  timeInterval: string;
+  frozenInterval: string;
+  qtyLimit: string;
+}
+⋮----
+export interface MMPConfig {
+  frozenInterval: string;
+  instFamily: string;
+  mmpFrozen: boolean;
+  mmpFrozenUntil: string;
+  qtyLimit: string;
+  timeInterval: string;
+}
+⋮----
+export interface BorrowRepayHistoryItem {
+  ccy: string;
+  type: 'auto_borrow' | 'auto_repay' | 'manual_borrow' | 'manual_repay';
+  amt: string;
+  accBorrowed: string;
+  ts: string;
+}
+⋮----
+export interface SetCollateralAssetsResult {
+  type: 'all' | 'custom';
+  ccyList: string[];
+  collateralEnabled: boolean;
+}
+⋮----
+export interface GetCollateralAssetsResult {
+  ccy: string;
+  collateralEnabled: boolean;
+}
+⋮----
+export interface SetSettleCurrencyResult {
+  settleCcy: string;
+}
+⋮----
+export interface SetFeeTypeResult {
+  feeType: string;
+}
+⋮----
+export interface SetTradingConfigResult {
+  type: string; // Trading config type
+  stgyType: string; // Strategy type
+}
+⋮----
+type: string; // Trading config type
+stgyType: string; // Strategy type
+⋮----
+export interface UnmatchedInfo {
+  type: string; // Unmatched information type: spot_mode, futures_mode, isolated_margin, isolated_contract, positions_options, isolated_pending_orders, pending_orders_options, trading_bot, repay_borrowings, loan, delta_risk, collateral_all, risk_unit_type
+  deltaLever?: string; // Delta leverage. Applicable when type is delta_risk
+  ordList?: string[]; // Unmatched order list, order ID. Applicable when type is isolated_pending_orders/pending_orders_options
+  posList?: string[]; // Unmatched position list, position ID. Applicable when type is isolated_margin/isolated_contract/positions_options
+}
+⋮----
+type: string; // Unmatched information type: spot_mode, futures_mode, isolated_margin, isolated_contract, positions_options, isolated_pending_orders, pending_orders_options, trading_bot, repay_borrowings, loan, delta_risk, collateral_all, risk_unit_type
+deltaLever?: string; // Delta leverage. Applicable when type is delta_risk
+ordList?: string[]; // Unmatched order list, order ID. Applicable when type is isolated_pending_orders/pending_orders_options
+posList?: string[]; // Unmatched position list, position ID. Applicable when type is isolated_margin/isolated_contract/positions_options
+⋮----
+export interface PrecheckSetDeltaNeutralResult {
+  unmatchedInfoCheck: UnmatchedInfo[];
+}
+⋮----
+export interface MovePositionLegResultFrom {
+  posId: string;
+  instId: string;
+  px: string;
+  side: string;
+  sz: string;
+  sCode: string;
+  sMsg: string;
+}
+⋮----
+export interface MovePositionLegResultTo {
+  instId: string;
+  px: string;
+  side: string;
+  sz: string;
+  tdMode: string;
+  posSide: string;
+  ccy: string;
+  sCode: string;
+  sMsg: string;
+}
+⋮----
+export interface MovePositionLegResult {
+  from: MovePositionLegResultFrom;
+  to: MovePositionLegResultTo;
+}
+⋮----
+/**
+ * @see POST /api/v5/account/move-positions
+ * @see GET /api/v5/account/move-positions-history
+ */
+export interface MovePositionsResult {
+  clientId: string;
+  blockTdId: string;
+  state: 'filled' | 'failed' | 'pending' | string;
+  ts: string;
+  fromAcct: string;
+  toAcct: string;
+  legs: MovePositionLegResult[];
+}
+
+================
 File: src/rest-client.ts
 ================
 import { ASSET_BILL_TYPE } from './constants/funding.js';
@@ -8800,11 +8346,13 @@ import {
   GetFixedLoanBorrowQuoteRequest,
   GetHistoricPositionParams,
   GetInstrumentsRequest,
+  GetMovePositionsHistoryRequest,
   GetPositionsParams,
   GetQuickMarginBorrowRepayHistoryRequest,
   GetVIPInterestRequest,
   GetVIPLoanOrderDetailRequest,
   GetVIPLoanOrderListRequest,
+  MovePositionsRequest,
   PositionBuilderRequest,
   PrecheckSetDeltaNeutralRequest,
   QuickMarginBorrowRepayRequest,
@@ -8893,6 +8441,7 @@ import {
   GetEventContractMarketsRequest,
   GetEventContractSeriesRequest,
   GetHistoricalMarketDataRequest,
+  GetInsuranceFundRequest,
   GetOptionTradesRequest,
   GetPremiumHistoryRequest,
   GetTopTradersContractLongShortRatioRequest,
@@ -8993,6 +8542,7 @@ import {
   InterestRate,
   MaxWithdrawal,
   MMPConfig,
+  MovePositionsResult,
   PrecheckSetDeltaNeutralResult,
   QuickMarginBorrowRepayRecord,
   QuickMarginBorrowRepayResult,
@@ -9152,6 +8702,7 @@ import {
   FundingRateHistory,
   IndexTicker,
   Instrument,
+  InsuranceFund,
   InterestRateAndLoanQuota,
   MarketDataHistoryResult,
   OptionTrade,
@@ -9303,6 +8854,21 @@ getMaxAvailableTradableAmount(params: {
 changePositionMargin(
     params: ChangePositionMarginRequest,
 ): Promise<AccountChangeMarginResult[]>
+⋮----
+/**
+   * Move positions between accounts under the same master account (VIP6+).
+   * TradeFi positions are not supported (error 70004).
+   * @see POST /api/v5/account/move-positions — 2026-05-15 changelog
+   */
+movePositions(params: MovePositionsRequest): Promise<MovePositionsResult[]>
+⋮----
+/**
+   * Move position history for the last 3 days (VIP6+).
+   * @see GET /api/v5/account/move-positions-history
+   */
+getMovePositionsHistory(
+    params?: GetMovePositionsHistoryRequest,
+): Promise<MovePositionsResult[]>
 ⋮----
 getLeverage(params: {
     instId?: string;
@@ -10409,7 +9975,7 @@ cancelSpreadAllAfter(params: { timeOut: string }): Promise<
 getInstruments(params: GetInstrumentsRequest): Promise<Instrument[]>
 ⋮----
 /**
-   * Prediction / event contract series. Auth required (read).
+   * Prediction / event contract series. Public (no auth required since 2026-05-19).
    * @see GET /api/v5/public/event-contract/series
    */
 getEventContractSeries(
@@ -10417,7 +9983,7 @@ getEventContractSeries(
 ): Promise<EventContractSeries[]>
 ⋮----
 /**
-   * Events for a series. Auth required (read).
+   * Events for a series. Public (no auth required since 2026-05-19).
    * @see GET /api/v5/public/event-contract/events
    */
 getEventContractEvents(
@@ -10425,7 +9991,7 @@ getEventContractEvents(
 ): Promise<EventContractEvent[]>
 ⋮----
 /**
-   * Markets for events. Auth required (read).
+   * Markets for events. Public (no auth required since 2026-05-19).
    * @see GET /api/v5/public/event-contract/markets
    */
 getEventContractMarkets(
@@ -10472,7 +10038,7 @@ getVIPInterestRateAndLoanQuota(params: any): Promise<any[]>
 ⋮----
 getUnderlying(params: any): Promise<any[]>
 ⋮----
-getInsuranceFund(params: any): Promise<any[]>
+getInsuranceFund(params?: GetInsuranceFundRequest): Promise<InsuranceFund[]>
 ⋮----
 getUnitConvert(params: UnitConvertRequest): Promise<UnitConvertData[]>
 ⋮----
@@ -10644,11 +10210,15 @@ getAssetBillsHistoric(params?: {
     ccy?: string;
     type?: `${ASSET_BILL_TYPE}`;
     clientId?: string;
+    /** Third-party custody type. Defaults to 1 (Copper) if not specified. @see 2026-06-05 changelog */
+    thirdPartyType?: '1' | '2' | '5' | '6';
     after?: numberInString;
     before?: numberInString;
     limit?: numberInString;
     pagingType?: '0' | '1';
 }): Promise<AssetBillDetails[]>
+⋮----
+/** Third-party custody type. Defaults to 1 (Copper) if not specified. @see 2026-06-05 changelog */
 ⋮----
 getLightningDeposits(params: {
     ccy: string;
@@ -11087,11 +10657,621 @@ createSubAccountAPIKey(params: {
 }): Promise<any[]>
 
 ================
+File: README.md
+================
+# Node.js & Typescript OKX (OKEX) API & WebSocket SDK
+
+[![E2E Tests](https://github.com/tiagosiebler/okx-api/actions/workflows/e2etest.yml/badge.svg?branch=master)](https://github.com/tiagosiebler/okx-api/actions/workflows/e2etest.yml)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/tiagosiebler/okx-api)
+[![npm downloads](https://img.shields.io/npm/dt/okx-api)][1]
+[![npm version](https://img.shields.io/npm/v/okx-api)][1]
+[![npm size](https://img.shields.io/bundlephobia/min/okx-api/latest)][1]
+[![last commit](https://img.shields.io/github/last-commit/tiagosiebler/okx-api)][1]
+[![CodeFactor](https://www.codefactor.io/repository/github/tiagosiebler/okx-api/badge)](https://www.codefactor.io/repository/github/tiagosiebler/okx-api)
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/okx-api">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://github.com/tiagosiebler/okx-api/blob/master/docs/images/logoDarkMode2.svg?raw=true#gh-dark-mode-only">
+      <img alt="SDK Logo" src="https://github.com/tiagosiebler/okx-api/blob/master/docs/images/logoBrightMode2.svg?raw=true#gh-light-mode-only">
+    </picture>
+  </a>
+</p>
+
+[1]: https://www.npmjs.com/package/okx-api
+
+> [!TIP]
+> Upcoming change: As part of the [Siebly.io](https://siebly.io/?ref=ghokx) brand, this SDK will soon be hosted under the [Siebly.io GitHub organisation](https://github.com/sieblyio). The migration is seamless and requires no user changes.
+
+Complete, updated & performant Node.js SDK for the OKX(OKEX) APIs and WebSockets:
+
+- Complete integration with OKX REST APIs, WebSockets & WebSocket APIs.
+- TypeScript support (with type declarations for most API requests & responses).
+- Over 100 end-to-end tests making real API calls & WebSocket connections, validating any changes before they reach npm.
+- Supports all available OKX regions:
+  - OKX Global (www.okx.com), by default.
+  - OKX EEA (my.okx.com), by setting `market: 'EEA'`.
+  - OKX US (app.okx.com), by setting `market: 'US'`.
+- Actively maintained with a modern, promise-driven interface.
+- Robust WebSocket integration
+  - Configurable connection heartbeats (automatically detect failing connections).
+  - Automatic reconnect then resubscribe workflows.
+  - Automatic authentication and heartbeat handling.
+- Supports WebSocket API in all supported regions & product groups:
+  - Use the WebsocketClient's event-driven `sendWSAPIRequest()` method, or;
+  - Use the WebsocketAPIClient for a REST-like experience.
+    - Use the WebSocket API like a REST API!
+    - Automatic routing to business vs private WebSocket endpoints.
+    - End to end types.
+    - See [examples/ws-api-client.ts](./examples/ws-api-client.ts) for a demonstration.
+- Browser support (via webpack bundle - see "Browser Usage" below).
+- QuickStart Guide: https://siebly.io/sdk/okx/javascript
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Issues & Discussion](#issues--discussion)
+- [Related Projects](#related-projects)
+- [Documentation](#documentation)
+- [Contributions & Thanks](#contributions--thanks)
+- [Structure](#structure)
+- [Usage](#usage)
+  - [REST Client](#rest-client)
+    - [Requests & Responses](#requests--responses)
+    - [Example](#example)
+  - [WebSockets](#websockets)
+    - [Sending Orders via WebSockets](#sending-orders-via-websockets)
+    - [Receiving Realtime Data](#receiving-realtime-data)
+    - [Public Events](#public-events)
+    - [Private Events](#private-events)
+- [Browser/Frontend Usage](#browserfrontend-usage)
+  - [Import](#import)
+  - [Webpack](#webpack)
+- [Use with LLMs & AI](#use-with-llms--ai)
+- [Contributions & Pull Requests](#contributions--pull-requests)
+- [Used By](#used-by)
+- [Star History](#star-history)
+
+## Installation
+
+```bash
+npm install okx-api
+```
+
+## Issues & Discussion
+
+- Issues? Check the [issues tab](https://github.com/tiagosiebler/okx-api/issues).
+- Discuss & collaborate with other node devs? Join our [Node.js Algo Traders](https://t.me/nodetraders) engineering community on telegram.
+- Follow our announcement channel for real-time updates on [X/Twitter](https://x.com/sieblyio)
+
+<!-- template_related_projects -->
+
+## Related Projects
+
+Check out our JavaScript/TypeScript/Node.js SDKs & Projects:
+
+- Visit our website: [https://Siebly.io](https://siebly.io/?ref=gh)
+- Try our REST API & WebSocket SDKs published on npmjs:
+  - [Bybit Node.js SDK: bybit-api](https://www.npmjs.com/package/bybit-api)
+  - [Kraken Node.js SDK: @siebly/kraken-api](https://www.npmjs.com/package/@siebly/kraken-api)
+  - [OKX Node.js SDK: okx-api](https://www.npmjs.com/package/okx-api)
+  - [Binance Node.js SDK: binance](https://www.npmjs.com/package/binance)
+  - [Gate (gate.com) Node.js SDK: gateio-api](https://www.npmjs.com/package/gateio-api)
+  - [Bitget Node.js SDK: bitget-api](https://www.npmjs.com/package/bitget-api)
+  - [Kucoin Node.js SDK: kucoin-api](https://www.npmjs.com/package/kucoin-api)
+  - [Coinbase Node.js SDK: coinbase-api](https://www.npmjs.com/package/coinbase-api)
+  - [Bitmart Node.js SDK: bitmart-api](https://www.npmjs.com/package/bitmart-api)
+- Try my misc utilities:
+  - [OrderBooks Node.js: orderbooks](https://www.npmjs.com/package/orderbooks)
+  - [Crypto Exchange Account State Cache: accountstate](https://www.npmjs.com/package/accountstate)
+- Check out my examples:
+  - [awesome-crypto-examples Node.js](https://github.com/tiagosiebler/awesome-crypto-examples)
+  <!-- template_related_projects_end -->
+
+## Documentation
+
+Most methods accept JS objects. These can be populated using parameters specified by okx's API documentation, or check the type definition in the rest-client class methods.
+
+- [RestClient](src/rest-client.ts)
+- [OKX API Documentation](https://www.okx.com/docs-v5/en/#rest-api)
+- [REST Endpoint Function List](./docs/endpointFunctionList.md)
+
+## Contributions & Thanks
+
+Support my efforts to make algo trading accessible to all - register with my referral links:
+
+- [Bybit](https://www.bybit.com/en-US/register?affiliate_id=9410&language=en-US&group_id=0&group_type=1)
+- [Binance](https://www.binance.com/en/register?ref=20983262)
+- [OKX](https://www.okx.com/join/18504944)
+
+For more ways to give thanks & support my efforts, visit [Contributions & Thanks](https://github.com/tiagosiebler/awesome-crypto-examples/wiki/Contributions-&-Thanks)!
+
+## Structure
+
+This project uses typescript. Resources are stored in 3 key structures:
+
+- [src](./src) - the whole connector written in typescript
+- [lib](./lib) - the javascript version of the project (compiled from typescript). This should not be edited directly, as it will be overwritten with each release. This is also the version published to npm.
+- [dist](./dist) - the packed bundle of the project for use in browser environments (manual, using webpack).
+- [examples](./examples) - some implementation examples & demonstrations. Contributions are welcome!
+
+---
+
+## Usage
+
+Create API credentials at okx
+
+- [OKX/account/API](https://www.okx.com/account/my-api)
+
+## REST Client
+
+### Requests & Responses
+
+- If your IDE doesn't have IntelliSense, check the [rest-client.ts](./src/rest-client.ts) for a list of methods, params & return types.
+- Requests follow the same ordering and format as the categories in the [API docs](https://www.okx.com/docs-v5/en/#rest-api).
+- Responses are parsed automatically for less nesting. Error responses are thrown in full:
+  - If the response looks successful (HTTP 200 and "code" in the response body === "0"), only the `data` property is directly (without the `code`, `data` & `msg` properties).
+  - If the response looks like an error (HTTP error OR the "code" property in the response does not equal "0"), the full response is thrown (including `code` and `msg` properties). See the interface for [APIResponse<T>](./src/types/rest/shared.ts).
+
+### Example
+
+```ts
+import { RestClient } from 'okx-api';
+
+const client = new RestClient({
+  apiKey: 'apiKeyHere',
+  apiSecret: 'apiSecretHere',
+  apiPass: 'apiPassHere',
+  // For Global users (www.okx.com), you don't need to set the market.
+  // It will use global by default.
+  // Not needed: market: 'GLOBAL',
+
+  // For EEA users (my.okx.com), set market to "EEA":
+  // market: 'EEA',
+
+  // For US users (app.okx.com), set market to "US":
+  // market: 'US',
+});
+
+// Submit a buy and sell market order
+(async () => {
+  try {
+    const allBalances = await client.getBalance();
+    console.log('All balances: ', allBalances);
+
+    const buyResult = await client.submitOrder({
+      instId: 'BTC-USDT',
+      ordType: 'market',
+      side: 'buy',
+      sz: '0.1',
+      tdMode: 'cash',
+      tgtCcy: 'base_ccy',
+    });
+    console.log('buy order result: ', buyResult);
+
+    const sellResult = await client.submitOrder({
+      instId: 'BTC-USDT',
+      ordType: 'market',
+      side: 'sell',
+      sz: '0.1',
+      tdMode: 'cash',
+      tgtCcy: 'base_ccy',
+    });
+    console.log('Sell order result: ', sellResult);
+  } catch (e) {
+    console.error('request failed: ', e);
+  }
+})();
+```
+
+## WebSockets
+
+This connector includes a high-performance Node.js, TypeScript & JavaScript WebSocket client for the OKX public & private WebSocket, including the OKX WebSocket API for order placement. API credentials are optional unless private streams will be used (such as account order updates).
+
+- If your IDE doesn't have IntelliSense, check the [websocket-client.ts](./src/websocket-client.ts) for a list of methods, params & return types.
+- When subscribing to channels, only the "args" should be passed as an object or array when calling the websocket client subcribe() function: [API docs](https://www.okx.com/docs-v5/en/#websocket-api-subscribe).
+- TypeScript recommended (but it is not required) for a richer experience:
+  ![typescript-subscribe](./docs/images/subscribe-with-typescript.gif)
+- The ws client will automatically open connections as needed when subscribing to a channel.
+- If the connection is lost for any reason, the ws client will detect this (via the connection heartbeats). It will then:
+  - Automatically teardown the dead connection.
+  - Automatically respawn a fresh connection.
+  - Automatically reauthenticate, if using private channels.
+  - Automatically resubscribe to previously subscribed topics.
+  - Resume producing events as before, without extra handling needed in your logic.
+- The ws client will automatically authenticate if accounts are provided and a private channel is subscribed to.
+- Up to 100 accounts are supported on the private connection, as per the [API docs](https://www.okx.com/docs-v5/en/#websocket-api-login). Authentication is automatic if accounts are provided.
+- For examples in using the websocket client, check the examples in the repo:
+  - Private channels (account data): [examples/ws-private.ts](./examples/ws-private.ts)
+  - Public chanels (market data): [examples/ws-public.ts](./examples/ws-public.ts)
+  - These examples are written in TypeScript, so can be executed with ts-node for easy testing:
+    `ts-node examples/ws-private.ts`
+  - Or convert them to javascript:
+    - Change the `import { ... } from 'okx-api'` to `const { ... } = require('okx-api');`
+    - Rename the file to `ws-private.js`
+    - And execute with node: `node examples/ws-private.js`
+
+### Sending orders via WebSockets
+
+OKX supports some order management capabilities via a persisted WebSocket connection. This SDK supports this with two convenient approaches.
+
+The recommended route is to use the dedicated WebsocketAPIClient class, included with this SDK:
+
+- Dedicated functions for every available WebSocket API operation
+- Fully typed requests and responses
+- Asynchronous promisified wrapper around WS API commands.
+
+It looks & feels like a REST API client, but uses WebSockets, via the WebsocketClient's sendWSAPIRequest method (which you can use directly if you prefer).
+
+A simple example is below but for a more thorough example, check the example here: [./examples/ws-api-client.ts](./examples/ws-api-client.ts).
+
+```typescript
+import { WebsocketAPIClient } from 'okx-api';
+// or if you prefer require:
+// const { WebsocketAPIClient } = require("okx-api");
+
+// For private events, all 3 of the following are required (per account):
+const API_KEY = process.env.API_KEY_COM;
+const API_SECRET = process.env.API_SECRET_COM;
+const API_PASSPHRASE = process.env.API_PASSPHRASE_COM;
+
+// If running from CLI in unix, you can pass env vars as such:
+// API_KEY_COM='lkm12n3-2ba3-1mxf-fn13-lkm12n3a' API_SECRET_COM='035B2B9637E1BDFFEE2646BFBDDB8CE4' API_PASSPHRASE_COM='ComplexPa$$!23$5^' ts-node examples/ws-private.ts
+
+const wsClient = new WebsocketAPIClient({
+  // For Global users (www.okx.com), you don't need to set the market.
+  // It will use global by default.
+  // Not needed: market: 'GLOBAL',
+
+  // For EEA users (my.okx.com), set market to "EEA":
+  // market: 'EEA',
+
+  // For US users (app.okx.com), set market to "US":
+  // market: 'US',
+
+  accounts: [
+    {
+      apiKey: API_KEY,
+      apiSecret: API_SECRET,
+      apiPass: API_PASSPHRASE,
+    },
+  ],
+});
+
+async function start() {
+  // Optional: prepare the WebSocket API connection in advance.
+  // This happens automatically but you can do this early before making any API calls, to prevent delays from a cold start.
+  // await wsClient.connectWSAPI();
+
+  /**
+   * OKX's WebSocket API be used like a REST API, through this SDK's WebsocketAPIClient. The WebsocketAPIClient is a utility class wrapped around WebsocketClient's sendWSAPIRequest() capabilities.
+   *
+   * Each request sent via the WebsocketAPIClient will automatically:
+   * - route via the active WS API connection
+   * - return a Promise, which automatically resolves/rejects when a matching response is received
+   */
+
+  /**
+   * Place Order
+   * https://www.okx.com/docs-v5/en/#order-book-trading-trade-ws-place-order
+   */
+  try {
+    const res = await wsClient.submitNewOrder({
+      instId: 'BTC-USDT',
+      tdMode: 'cash',
+      side: 'buy',
+      ordType: 'market',
+      sz: '100',
+    });
+    /**
+      const res = {
+        id: '2',
+        op: 'order',
+        code: '1',
+        msg: '',
+        data: [
+          {
+            tag: '159881cb7207BCDE',
+            ts: '1753714603721',
+            ordId: '',
+            clOrdId: '',
+            sCode: '51008',
+            sMsg: 'Order failed. Insufficient USDT balance in account.'
+          }
+        ],
+        inTime: '1753714603720755',
+        outTime: '1753714603721942',
+        wsKey: 'prodPrivate',
+        isWSAPIResponse: false
+      }
+
+      const res =  {
+        id: '2',
+        op: 'order',
+        code: '1',
+        msg: '',
+        data: [
+          {
+            tag: '159881cb7207BCDE',
+            ts: '1753714567149',
+            ordId: '',
+            clOrdId: '',
+            sCode: '51010',
+            sMsg: "You can't complete this request under your current account mode."
+          }
+        ],
+        inTime: '1753714567149196',
+        outTime: '1753714567149913',
+        wsKey: 'prodPrivate',
+        isWSAPIResponse: false
+      }
+     */
+
+    console.log(new Date(), 'WS API "submitNewOrder()" result: ', res);
+  } catch (e) {
+    console.error(new Date(), 'Exception with WS API "submitNewOrder()": ', e);
+  }
+
+  /**
+   * Submit multiple orders in a batch
+   * https://www.okx.com/docs-v5/en/#order-book-trading-trade-ws-place-multiple-orders
+   */
+  try {
+    const res = await wsClient.submitMultipleOrders([
+      {
+        instId: 'BTC-USDT',
+        tdMode: 'cash',
+        side: 'buy',
+        ordType: 'market',
+        sz: '100',
+      },
+      {
+        instId: 'BTC-USDT',
+        tdMode: 'cash',
+        side: 'buy',
+        ordType: 'market',
+        sz: '50',
+      },
+    ]);
+    console.log(new Date(), 'WS API "submitMultipleOrders()" result: ', res);
+  } catch (e) {
+    console.error(
+      new Date(),
+      'Exception with WS API "submitMultipleOrders()": ',
+      e,
+    );
+  }
+}
+
+start();
+```
+
+### Receiving realtime data
+
+The below example demonstrates connecting as a consumer, to receive WebSocket events from OKX, using the included WebsocketClient:
+
+```javascript
+import { WebsocketClient } from 'okx-api';
+// or if you prefer require:
+// const { WebsocketClient } = require("okx-api");
+
+// For private events, all 3 of the following are required (per account):
+const API_KEY = process.env.API_KEY_COM;
+const API_SECRET = process.env.API_SECRET_COM;
+const API_PASSPHRASE = process.env.API_PASSPHRASE_COM;
+
+// If running from CLI in unix, you can pass env vars as such:
+// API_KEY_COM='lkm12n3-2ba3-1mxf-fn13-lkm12n3a' API_SECRET_COM='035B2B9637E1BDFFEE2646BFBDDB8CE4' API_PASSPHRASE_COM='ComplexPa$$!23$5^' ts-node examples/ws-private.ts
+
+// Note the single quotes, preventing special characters such as $ from being incorrectly passed
+
+const wsClient = new WebsocketClient({
+  // For Global users (www.okx.com), you don't need to set the market.
+  // It will use global by default.
+  // Not needed: market: 'GLOBAL',
+
+  // For EEA users (my.okx.com), set market to "EEA":
+  // market: 'EEA',
+
+  // For US users (app.okx.com), set market to "US":
+  // market: 'US',
+
+  accounts: [
+    // For private topics, include one or more accounts in an array. Otherwise only public topics will work
+    {
+      apiKey: API_KEY,
+      apiSecret: API_SECRET,
+      apiPass: API_PASSPHRASE,
+    },
+    // {
+    //   apiKey: 'yourApiKeyHere',
+    //   apiSecret: 'yourApiSecretHere',
+    //   apiPass: 'yourApiPassHere',
+    // },
+    // {
+    //   apiKey: 'anotherAccountKey',
+    //   apiSecret: 'anotherAccountSecret',
+    //   apiPass: 'anotherAccountPass',
+    // },
+  ],
+});
+
+// Raw data will arrive on the 'update' event
+wsClient.on('update', (data) => {
+  console.log('ws update (raw data received)', JSON.stringify(data));
+});
+
+wsClient.on('open', (data) => {
+  console.log('connection opened open:', data.wsKey);
+});
+
+// Replies (e.g. authenticating or subscribing to channels) will arrive on the 'response' event
+wsClient.on('response', (data) => {
+  // console.log('ws response: ', JSON.stringify(data, null, 2));
+  console.log('ws response: ', JSON.stringify(data));
+});
+
+wsClient.on('reconnect', ({ wsKey }) => {
+  console.log('ws automatically reconnecting.... ', wsKey);
+});
+wsClient.on('reconnected', (data) => {
+  console.log('ws has reconnected ', data?.wsKey);
+});
+wsClient.on('exception', (data) => {
+  console.error('ws exception: ', data);
+});
+
+/**
+ * Simply call subscribe to request the channels that you're interested in.
+ *
+ * If authentication is required, the WSClient will automatically authenticate with the available credentials.
+ */
+
+// Subscribe one event at a time:
+wsClient.subscribe({
+  channel: 'account',
+});
+
+// OR, combine multiple subscription events into one request using an array instead of an object:
+wsClient.subscribe([
+  {
+    channel: 'account',
+  },
+  {
+    channel: 'positions',
+    instType: 'ANY',
+  },
+]);
+
+// Public topics, for comparison. These do not require authentication / api keys:
+wsClient.subscribe([
+  {
+    channel: 'instruments',
+    instType: 'SPOT',
+  },
+  {
+    channel: 'instruments',
+    instType: 'FUTURES',
+  },
+  {
+    channel: 'tickers',
+    instId: 'LTC-BTC',
+  },
+]);
+```
+
+#### Public Events
+
+See [examples/ws-public.ts](./examples/ws-public.ts) for a full example:
+
+![typescript-events-public](./docs/images/subscribe-events-public.gif)
+
+#### Private Events
+
+See [examples/ws-private.ts](./examples/ws-private.ts) for a full example:
+
+![typescript-events](./docs/images/subscribe-events.gif)
+
+## Browser/Frontend Usage
+
+### Import
+
+This is the "modern" way, allowing the package to be directly imported into frontend projects with full typescript support.
+
+1. Install these dependencies
+   ```sh
+   npm install crypto-browserify stream-browserify
+   ```
+2. Add this to your `tsconfig.json`
+   ```json
+   {
+     "compilerOptions": {
+       "paths": {
+         "crypto": [
+           "./node_modules/crypto-browserify"
+         ],
+         "stream": [
+           "./node_modules/stream-browserify"
+         ]
+   }
+   ```
+3. Declare this in the global context of your application (ex: in polyfills for angular)
+   ```js
+   (window as any).global = window;
+   ```
+
+### Webpack
+
+This is the "old" way of using this package on webpages. This will build a minified js bundle that can be pulled in using a script tag on a website.
+
+Build a bundle using webpack:
+
+- `npm install`
+- `npm build`
+- `npm pack`
+
+The bundle can be found in `dist/`. Altough usage should be largely consistent, smaller differences will exist. Documentation is still TODO.
+
+## Use with LLMs & AI
+
+This SDK includes a bundled `llms.txt` file in the root of the repository. If you're developing with LLMs, use the included `llms.txt` with your LLM - it will significantly improve the LLMs understanding of how to correctly use this SDK.
+
+This file contains AI optimised structure of all the functions in this package, and their parameters for easier use with any learning models or artificial intelligence.
+
+---
+
+<!-- template_contributions -->
+
+### Contributions & Thanks
+
+Have my projects helped you? Share the love, there are many ways you can show your thanks:
+
+- Star & share my projects.
+- Are my projects useful? Sponsor me on Github and support my effort to maintain & improve them: https://github.com/sponsors/tiagosiebler
+- Have an interesting project? Get in touch & invite me to it.
+- Or buy me all the coffee:
+  - ETH(ERC20): `0xA3Bda8BecaB4DCdA539Dc16F9C54a592553Be06C` <!-- metamask -->
+- Sign up with my referral links:
+  - OKX (receive a 20% fee discount!): https://www.okx.com/join/42013004
+  - Binance (receive a 20% fee discount!): https://accounts.binance.com/register?ref=OKFFGIJJ
+  - HyperLiquid (receive a 4% fee discount!): https://app.hyperliquid.xyz/join/SDK
+  - Gate: https://www.gate.io/signup/NODESDKS?ref_type=103
+
+<!---
+old ones:
+  - BTC: `1C6GWZL1XW3jrjpPTS863XtZiXL1aTK7Jk`
+  - BTC(SegWit): `bc1ql64wr9z3khp2gy7dqlmqw7cp6h0lcusz0zjtls`
+  - ETH(ERC20): `0xe0bbbc805e0e83341fadc210d6202f4022e50992`
+  - USDT(TRC20): `TA18VUywcNEM9ahh3TTWF3sFpt9rkLnnQa
+  - gate: https://www.gate.io/signup/AVNNU1WK?ref_type=103
+
+-->
+<!-- template_contributions_end -->
+
+## Contributions & Pull Requests
+
+Contributions are encouraged, I will review any incoming pull requests. See the issues tab for todo items.
+
+## Used By
+
+The following represents some of the known public projects that use this SDK on GitHub:
+
+[![Repository Users Preview Image](https://dependents.info/tiagosiebler/okx-api/image)](https://github.com/tiagosiebler/okx-api/network/dependents)
+
+<!-- template_star_history -->
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=tiagosiebler/bybit-api,tiagosiebler/okx-api,tiagosiebler/binance,tiagosiebler/bitget-api,tiagosiebler/bitmart-api,tiagosiebler/gateio-api,tiagosiebler/kucoin-api,tiagosiebler/coinbase-api,tiagosiebler/orderbooks,tiagosiebler/accountstate,tiagosiebler/awesome-crypto-examples&type=Date)](https://star-history.com/#tiagosiebler/bybit-api&tiagosiebler/okx-api&tiagosiebler/binance&tiagosiebler/bitget-api&tiagosiebler/bitmart-api&tiagosiebler/gateio-api&tiagosiebler/kucoin-api&tiagosiebler/coinbase-api&tiagosiebler/orderbooks&tiagosiebler/accountstate&tiagosiebler/awesome-crypto-examples&Date)
+
+<!-- template_star_history_end -->
+
+================
 File: package.json
 ================
 {
   "name": "okx-api",
-  "version": "3.1.5",
+  "version": "3.1.6",
   "description": "Complete Node.js SDK for OKX's REST APIs and WebSockets, with TypeScript & end-to-end tests",
   "scripts": {
     "test": "jest",

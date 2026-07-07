@@ -196,3 +196,36 @@ export interface BillsHistoryArchiveRequest {
   /** Comma-separated bill type ids, e.g. 1,2,3. If omitted, all types. */
   type?: string;
 }
+
+export interface MovePositionLegFrom {
+  posId: string;
+  side: 'buy' | 'sell';
+  sz: string;
+}
+
+export interface MovePositionLegTo {
+  tdMode?: 'cross' | 'isolated';
+  posSide?: PositionSide;
+  ccy?: string;
+}
+
+export interface MovePositionLeg {
+  from: MovePositionLegFrom;
+  to: MovePositionLegTo;
+}
+
+export interface MovePositionsRequest {
+  fromAcct: string;
+  toAcct: string;
+  legs: MovePositionLeg[];
+  clientId: string;
+}
+
+export interface GetMovePositionsHistoryRequest {
+  blockTdId?: string;
+  clientId?: string;
+  beginTs?: string;
+  endTs?: string;
+  limit?: string;
+  state?: 'filled' | 'pending';
+}
