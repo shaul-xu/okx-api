@@ -1,6 +1,4 @@
 const path = require('path');
-const BundleAnalyzerPlugin =
-  require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 function generateConfig(name) {
   var config = {
@@ -38,15 +36,6 @@ function generateConfig(name) {
       ],
     },
   };
-
-  config.plugins = [
-    new BundleAnalyzerPlugin({
-      defaultSizes: 'stat',
-      analyzerMode: 'static',
-      reportFilename: '../doc/bundleReport.html',
-      openAnalyzer: false,
-    }),
-  ];
 
   return config;
 }
