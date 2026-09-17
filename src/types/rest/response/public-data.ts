@@ -447,3 +447,8 @@ export interface MmInstrumentType {
   /** A | B-Crypto | B-TradFi */
   pairType: string;
 }
+
+export interface DeltaHedgeCurrency {
+  ccy: string;
+  hedgeCcy: string[];
+}
