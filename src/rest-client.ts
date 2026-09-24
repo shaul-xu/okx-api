@@ -369,6 +369,7 @@ import {
   Announcement,
   Candle,
   CandleNoVolume,
+  DeltaHedgeCurrency,
   EconomicCalendarData,
   EstimatedDeliveryExercisePrice,
   EthStakingProductInfo,
@@ -2331,6 +2332,12 @@ export class RestClient extends BaseRestClient {
     instId?: string;
   }): Promise<MmInstrumentType[]> {
     return this.get('/api/v5/public/mm-instrument-types', params);
+  }
+
+  getDeltaHedgeCurrencies(params?: {
+    ccy?: string;
+  }): Promise<DeltaHedgeCurrency[]> {
+    return this.get('/api/v5/public/delta-hedge-currencies', params);
   }
 
   getUnitConvert(params: UnitConvertRequest): Promise<UnitConvertData[]> {
